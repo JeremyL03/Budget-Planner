@@ -100,7 +100,7 @@
     .positive { color: var(--green); }
     .negative { color: var(--danger); }
 
-    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 20px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 20px; }
     .card { overflow: hidden; }
     .card-head {
       padding: 14px 18px;
@@ -129,9 +129,7 @@
     label, .small { color: var(--muted); font-size: 12px; }
     .money-input { width: 130px; text-align: right; font-weight: 700; color: var(--green); }
 
-    /* ========================================================
-       NEW HIGH-CLARITY TABLE DESIGN
-       ======================================================== */
+    /* Structured High-Clarity Table Design */
     .table-container {
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -154,9 +152,7 @@
       border-bottom: 1px solid var(--line);
       border-right: 1px solid var(--line-subtle);
     }
-    thead th:last-child {
-      border-right: none;
-    }
+    thead th:last-child { border-right: none; }
 
     tbody td {
       padding: 6px 10px;
@@ -164,33 +160,18 @@
       border-right: 1px solid var(--line-subtle);
       vertical-align: middle;
     }
-    tbody td:last-child {
-      border-right: none;
-    }
+    tbody td:last-child { border-right: none; }
 
-    /* Day boundary line to distinguish each date */
-    tr.day-boundary td {
-      border-top: 2px solid #23352a;
-    }
+    tr.day-boundary td { border-top: 2px solid #23352a; }
     tr.is-subrow td {
       background: rgba(255, 255, 255, 0.015);
       border-top: 1px dashed rgba(38, 51, 43, 0.5);
     }
-    tr:hover td {
-      background: rgba(69, 212, 131, 0.02);
-    }
+    tr:hover td { background: rgba(69, 212, 131, 0.02); }
 
     /* 1. Day Column */
-    td.col-day {
-      background: #090e0b;
-      width: 145px;
-    }
-    .day-cell {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      white-space: nowrap;
-    }
+    td.col-day { background: #090e0b; width: 145px; }
+    .day-cell { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
     .day-chip {
       display: inline-flex;
       align-items: center;
@@ -219,16 +200,8 @@
       font-weight: 800;
       font-size: 13px;
     }
-    .btn-add-inst:hover {
-      background: #193424;
-      border-color: var(--green);
-    }
-    .day-sub-label {
-      color: var(--muted);
-      font-size: 11px;
-      font-family: ui-monospace, monospace;
-      padding-left: 6px;
-    }
+    .btn-add-inst:hover { background: #193424; border-color: var(--green); }
+    .day-sub-label { color: var(--muted); font-size: 11px; font-family: ui-monospace, monospace; padding-left: 6px; }
     .day-total-badge {
       font-size: 10px;
       color: var(--muted);
@@ -241,9 +214,7 @@
     }
 
     /* 2. Category Dropdown Column */
-    td.col-cat {
-      width: 165px;
-    }
+    td.col-cat { width: 165px; }
     .table-select {
       width: 100%;
       background: #0c1611 url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2391a096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 9px center;
@@ -258,11 +229,7 @@
       color: var(--text);
       cursor: pointer;
     }
-    .table-select:focus {
-      border-color: var(--green);
-      background-color: #101d16;
-      outline: none;
-    }
+    .table-select:focus { border-color: var(--green); background-color: #101d16; outline: none; }
 
     /* 3. Description Note Column */
     .table-note-input {
@@ -274,20 +241,11 @@
       color: var(--text);
       font-size: 13px;
     }
-    .table-note-input:hover {
-      border-color: #1f2b23;
-    }
-    .table-note-input:focus {
-      border-color: var(--line);
-      background: #0e1612;
-      outline: none;
-    }
+    .table-note-input:hover { border-color: #1f2b23; }
+    .table-note-input:focus { border-color: var(--line); background: #0e1612; outline: none; }
 
     /* 4. Spent Column */
-    td.col-spent {
-      width: 125px;
-      text-align: right;
-    }
+    td.col-spent { width: 125px; text-align: right; }
     .table-spent-box {
       display: flex;
       align-items: center;
@@ -298,10 +256,7 @@
       border-radius: 6px;
       padding: 3px 8px;
     }
-    .table-spent-box:focus-within {
-      border-color: var(--green);
-      background: #0d1611;
-    }
+    .table-spent-box:focus-within { border-color: var(--green); background: #0d1611; }
     .table-spent-input {
       width: 80px;
       background: transparent;
@@ -315,10 +270,7 @@
     }
 
     /* 5. Remaining Waterfall Column */
-    td.col-rem {
-      width: 140px;
-      text-align: right;
-    }
+    td.col-rem { width: 140px; text-align: right; }
     .rem-badge {
       display: inline-flex;
       align-items: center;
@@ -342,23 +294,51 @@
     }
 
     /* 6. Action Delete Column */
-    td.col-action {
-      width: 38px;
-      text-align: center;
-    }
+    td.col-action { width: 38px; text-align: center; }
 
-    /* Category Sliders & Controls */
+    /* Category Sliders, Amount Inputs & Lock Button */
     .category-list { display: grid; gap: 10px; }
     .cat-row {
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: var(--panel-alt);
+      transition: border-color 0.2s ease;
+    }
+    .cat-row.is-locked {
+      border-color: rgba(69, 212, 131, 0.35);
+      background: #0d1611;
     }
     .cat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .cat-name-wrap { display: flex; align-items: center; gap: 6px; }
     .cat-name { font-weight: 700; }
     .cat-inputs-wrap { display: flex; align-items: center; gap: 6px; }
+    
+    .btn-lock {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 26px;
+      padding: 0;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #0d1611;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .btn-lock:hover {
+      background: #18281e;
+      border-color: var(--green);
+    }
+    .btn-lock.is-locked {
+      background: rgba(69, 212, 131, 0.15);
+      border-color: rgba(69, 212, 131, 0.5);
+      color: var(--green);
+    }
+
     .cat-input-mini {
       width: 85px;
       text-align: right;
@@ -367,6 +347,14 @@
       font-weight: 700;
       color: var(--green);
       background: #080d0a;
+      border: 1px solid #1c2820;
+      border-radius: 6px;
+    }
+    .cat-input-mini:disabled {
+      background: #0d1410;
+      color: #63756a;
+      border-color: #17241c;
+      cursor: not-allowed;
     }
     .cat-controls { display: grid; gap: 4px; }
     
@@ -379,6 +367,10 @@
       cursor: pointer;
       border: 0;
       padding: 0;
+    }
+    input[type=range]:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
     }
     .cat-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
 
@@ -427,7 +419,7 @@
   <header>
     <div>
       <h1>Monthly Budget Planner</h1>
-      <p>Dynamic soft-coded allocations, real-time calculations & cloud sync.</p>
+      <p>Live zero-sum dynamic balancing, category locks & running waterfall ledger.</p>
     </div>
     <div class="actions">
       <span class="sync-badge" id="syncStatus">Local Only</span>
@@ -471,7 +463,7 @@
     <div class="stat" style="border-color: #235234; background: linear-gradient(145deg, #13271c, #0e1a13);">
       <span style="color:var(--green)">★ Goals (Total)</span>
       <strong id="statGoals" class="positive">MYR 0.00</strong>
-      <small id="statGoalsSub">Base + Unspent surplus</small>
+      <small id="statGoalsSub">All unspent cash waterfalls here</small>
     </div>
   </div>
 
@@ -483,7 +475,7 @@
             <strong>Daily Spending Ledger</strong>
             <span class="small" id="txCount">0 entries</span>
           </div>
-          <button class="btn btn-sm" id="viewToggleBtn">View: All Days (1–31)</button>
+          <button class="btn btn-sm" id="viewToggleBtn">View: Active Days Only</button>
         </div>
         <div class="card-body">
           <div class="toolbar">
@@ -499,7 +491,6 @@
             </div>
           </div>
 
-          <!-- Structured High-Clarity Table Container -->
           <div class="table-container" style="overflow-x:auto">
             <table>
               <thead>
@@ -533,7 +524,7 @@
             <button class="btn" id="createCatBtn">Add</button>
           </div>
           <p class="small" style="margin-top:12px;line-height:1.4">
-            * Drag sliders or type amounts directly. Unspent funds waterfall into <b>Goals</b>.
+            * <b>🔒 Lock</b> categories to freeze their numbers. <b>🔓 Unlocked</b> categories automatically adjust up/down so the total is always 100% of income.
           </p>
         </div>
       </section>
@@ -568,9 +559,9 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   const defaultCategories = () => [
-    { id: uid(), name: 'Savings', pct: 0, isRemainder: false },
-    { id: uid(), name: 'Needs', pct: 28, isRemainder: false },
-    { id: uid(), name: 'Wants', pct: 72, isRemainder: false }
+    { id: uid(), name: 'Savings', pct: 0, budget: 0, locked: true },
+    { id: uid(), name: 'Needs', pct: 28, budget: 0, locked: false },
+    { id: uid(), name: 'Wants', pct: 72, budget: 0, locked: false }
   ];
 
   const createBlankMonth = (y, m) => ({
@@ -589,10 +580,18 @@
     appState = prev || {
       currency: 'MYR',
       activeMonthIdx: 0,
-      showAllDays: true,
+      showAllDays: false,
       months: [createBlankMonth(now.getFullYear(), now.getMonth())]
     };
   }
+
+  // Ensure all categories have locked property & initial budget initialized
+  appState.months.forEach(m => {
+    m.categories.forEach(c => {
+      if (c.locked === undefined) c.locked = (c.name.toLowerCase() === 'savings');
+      if (c.budget === undefined) c.budget = (c.pct / 100) * (m.income || 0);
+    });
+  });
 
   // --- CLOUD SYNC CONFIGURATION ---
   const SYNC_CONFIG = {
@@ -685,30 +684,6 @@
     maximumFractionDigits: 2
   })}`;
 
-  function calculateBudgets(m) {
-    const inc = +m.income || 0;
-    let nonRemainderPct = 0;
-
-    m.categories.forEach(c => {
-      if (!c.isRemainder) {
-        c.pct = Math.max(0, Math.min(100, +c.pct || 0));
-        nonRemainderPct += c.pct;
-        if (c.fixedBudget !== undefined && c.fixedBudget !== null) {
-          c.budget = +c.fixedBudget;
-        } else {
-          c.budget = (c.pct / 100) * inc;
-        }
-      }
-    });
-
-    m.categories.forEach(c => {
-      if (c.isRemainder) {
-        c.pct = Math.max(0, +(100 - nonRemainderPct).toFixed(1));
-        c.budget = (c.pct / 100) * inc;
-      }
-    });
-  }
-
   function getCategorySpent(m, catName) {
     return (m.expenses || [])
       .filter(e => e.category === catName)
@@ -724,11 +699,98 @@
     return wants ? wants.name : (m.categories[0]?.name || 'Wants');
   }
 
-  // Real-time calculation engine with waterfall running balance
+  // --- ZERO-SUM DYNAMIC REBALANCING ENGINE ---
+  function rebalanceCategory(m, editId, targetVal, isPct = false) {
+    const inc = +m.income || 0;
+    if (inc <= 0) return;
+
+    const targetCat = m.categories.find(c => c.id === editId);
+    if (!targetCat || targetCat.locked) return;
+
+    let targetBudget = isPct ? (targetVal / 100) * inc : targetVal;
+    targetBudget = Math.max(0, Math.min(inc, targetBudget));
+
+    const oldBudget = targetCat.budget || 0;
+    const delta = targetBudget - oldBudget;
+
+    if (Math.abs(delta) < 0.001) return;
+
+    // Identify all other UNLOCKED categories to absorb the difference
+    const unlockedOthers = m.categories.filter(c => c.id !== editId && !c.locked);
+
+    if (unlockedOthers.length === 0) {
+      // All other categories locked: clamp to available remaining income
+      const lockedSum = m.categories.filter(c => c.id !== editId).reduce((sum, c) => sum + (c.budget || 0), 0);
+      const maxAvailable = Math.max(0, inc - lockedSum);
+      targetCat.budget = Math.min(targetBudget, maxAvailable);
+      targetCat.pct = inc > 0 ? (targetCat.budget / inc) * 100 : 0;
+      updateCalculationsLive();
+      return;
+    }
+
+    const totalUnlockedBudget = unlockedOthers.reduce((sum, c) => sum + (c.budget || 0), 0);
+
+    if (delta > 0) {
+      // Category wants more money: take from other unlocked categories
+      const actualDelta = Math.min(delta, totalUnlockedBudget);
+      targetCat.budget = oldBudget + actualDelta;
+
+      unlockedOthers.forEach(c => {
+        const share = totalUnlockedBudget > 0 ? (c.budget / totalUnlockedBudget) : (1 / unlockedOthers.length);
+        c.budget = Math.max(0, c.budget - (actualDelta * share));
+      });
+    } else {
+      // Category reduced: give back excess to other unlocked categories
+      const absDelta = -delta;
+      targetCat.budget = targetBudget;
+
+      unlockedOthers.forEach(c => {
+        const share = totalUnlockedBudget > 0 ? (c.budget / totalUnlockedBudget) : (1 / unlockedOthers.length);
+        c.budget += absDelta * share;
+      });
+    }
+
+    // Cent-perfect rounding reconciliation so total always matches income
+    const currentTotal = m.categories.reduce((sum, c) => sum + c.budget, 0);
+    const diff = inc - currentTotal;
+    if (Math.abs(diff) > 0.001 && unlockedOthers.length > 0) {
+      unlockedOthers[0].budget = Math.max(0, unlockedOthers[0].budget + diff);
+    }
+
+    // Update percentages for all categories
+    m.categories.forEach(c => {
+      c.pct = inc > 0 ? (c.budget / inc) * 100 : 0;
+    });
+
+    updateCalculationsLive();
+  }
+
+  // Reconcile budgets on initial load
+  function normalizeInitialBudgets(m) {
+    const inc = +m.income || 0;
+    if (inc <= 0) {
+      m.categories.forEach(c => { c.budget = 0; c.pct = 0; });
+      return;
+    }
+
+    const currentTotal = m.categories.reduce((sum, c) => sum + (c.budget || 0), 0);
+    const diff = inc - currentTotal;
+
+    if (Math.abs(diff) > 0.01) {
+      const unlocked = m.categories.filter(c => !c.locked);
+      if (unlocked.length > 0) {
+        unlocked[0].budget = Math.max(0, unlocked[0].budget + diff);
+      }
+    }
+
+    m.categories.forEach(c => {
+      c.pct = inc > 0 ? (c.budget / inc) * 100 : 0;
+    });
+  }
+
+  // Real-time live update for cards, waterfall balances, sliders, and chart
   function updateCalculationsLive() {
     const m = currentMonth();
-    calculateBudgets(m);
-
     const inc = +m.income || 0;
     const totalBudgeted = m.categories.reduce((acc, c) => acc + c.budget, 0);
     const totalSpent = (m.expenses || []).reduce((acc, e) => acc + (+e.spent || 0), 0);
@@ -770,7 +832,7 @@
     remElem.className = netRemaining < 0 ? 'negative' : 'positive';
     document.getElementById('statRemainingSub').textContent = inc > 0 ? 'Net unspent cash' : 'Enter income to start';
 
-    // 6. Goals Pot: All unspent cash minus untouchable active savings reserve
+    // 6. Goals Pot: All unspent cash waterfalls here
     const savLocked = Math.max(0, savVal - savSpent);
     const goalsTotal = Math.max(0, netRemaining - savLocked);
     document.getElementById('statGoals').textContent = fmtMoney(goalsTotal);
@@ -782,23 +844,33 @@
     m.categories.forEach(c => {
       const amtInput = document.querySelector(`.cat-amt-input[data-id="${c.id}"]`);
       if (amtInput && document.activeElement !== amtInput) {
-        amtInput.value = c.budget > 0 ? c.budget.toFixed(2) : '';
+        amtInput.value = c.budget > 0 ? c.budget.toFixed(2) : '0.00';
       }
 
       const metaEl = document.querySelector(`.cat-meta-label[data-id="${c.id}"]`);
       if (metaEl) {
         const spent = getCategorySpent(m, c.name);
-        metaEl.textContent = `${c.pct.toFixed(0)}% · ${fmtMoney(spent)} spent`;
+        metaEl.textContent = `${c.pct.toFixed(1)}% · ${fmtMoney(spent)} spent`;
       }
 
       const rangeInput = document.querySelector(`input[type=range][data-cat="${c.id}"]`);
-      if (rangeInput && (c.isRemainder || document.activeElement !== rangeInput)) {
-        rangeInput.value = c.pct;
+      if (rangeInput && document.activeElement !== rangeInput) {
+        rangeInput.value = c.pct.toFixed(1);
       }
     });
 
+    // Allocation Status Indicator
     const totalAllocPct = m.categories.reduce((acc, c) => acc + c.pct, 0);
-    document.getElementById('allocStatus').textContent = `${totalAllocPct.toFixed(0)}% allocated`;
+    const lockedCount = m.categories.filter(c => c.locked).length;
+    const statusEl = document.getElementById('allocStatus');
+
+    if (Math.abs(totalAllocPct - 100) < 0.15) {
+      statusEl.textContent = `100% allocated · ${lockedCount > 0 ? `🔒 ${lockedCount} Locked` : 'Balanced ✓'}`;
+      statusEl.className = 'small positive';
+    } else {
+      statusEl.textContent = `${totalAllocPct.toFixed(1)}% allocated`;
+      statusEl.className = 'small';
+    }
 
     // Update Donut Chart
     let cursor = 0;
@@ -829,7 +901,6 @@
           runningBal[cat] = catObj ? catObj.budget : 0;
         }
 
-        // Subtract spent progressively going down each row
         runningBal[cat] -= spent;
         const currentRem = runningBal[cat];
 
@@ -843,16 +914,16 @@
       <div class="legend-row">
         <div class="legend-left">
           <span class="dot" style="background:${PALETTE[i % PALETTE.length]}"></span>
-          <span>${esc(c.name)}</span>
+          <span>${esc(c.name)} ${c.locked ? '<small style="color:var(--green)">🔒</small>' : ''}</span>
         </div>
-        <span><b>${fmtMoney(c.budget)}</b> <small class="small">(${c.pct.toFixed(0)}%)</small></span>
+        <span><b>${fmtMoney(c.budget)}</b> <small class="small">(${c.pct.toFixed(1)}%)</small></span>
       </div>
     `).join('');
   }
 
   function render() {
     const m = currentMonth();
-    calculateBudgets(m);
+    normalizeInitialBudgets(m);
 
     const totalDays = daysInMonth(m.year, m.month);
     const defaultCatName = getDefaultExpenseCat(m);
@@ -877,32 +948,35 @@
       </div>
     `).join('');
 
-    // Categories
+    // Categories with Lock Button
     document.getElementById('categoryContainer').innerHTML = m.categories.map((c, i) => {
       const spent = getCategorySpent(m, c.name);
       const col = PALETTE[i % PALETTE.length];
       return `
-        <div class="cat-row">
+        <div class="cat-row ${c.locked ? 'is-locked' : ''}">
           <div class="cat-top">
             <div class="cat-name-wrap">
               <span class="dot" style="background:${col}"></span>
               <span class="cat-name">${esc(c.name)}</span>
-              ${c.isRemainder ? '<span class="small positive" style="font-size:10px">(Remainder)</span>' : ''}
+              ${c.locked ? '<span class="small positive" style="font-size:10px;font-weight:700">🔒 Locked</span>' : ''}
             </div>
             <div class="cat-inputs-wrap">
+              <button class="btn-lock ${c.locked ? 'is-locked' : ''}" data-togglelock="${c.id}" title="${c.locked ? 'Locked: Budget won\'t change when other categories are edited. Click to unlock.' : 'Unlocked: Balances dynamically with other categories. Click to lock.'}">
+                ${c.locked ? '🔒' : '🔓'}
+              </button>
               <span style="font-size:11px;color:var(--muted)">${appState.currency}</span>
               <input type="number" step="0.01" class="cat-input-mini cat-amt-input" data-id="${c.id}" 
-                value="${c.budget > 0 ? c.budget.toFixed(2) : ''}" placeholder="0.00" 
-                ${c.isRemainder ? 'disabled title="Remainder calculates automatically"' : ''}>
+                value="${c.budget > 0 ? c.budget.toFixed(2) : '0.00'}" placeholder="0.00" 
+                ${c.locked ? 'disabled title="Click 🔒 to unlock and edit"' : ''}>
               ${m.categories.length > 1 ? `<button class="btn danger btn-sm" data-delcat="${c.id}">×</button>` : ''}
             </div>
           </div>
           <div class="cat-controls">
-            <input type="range" min="0" max="100" step="1" value="${c.pct}" data-cat="${c.id}" 
-              ${c.isRemainder ? 'disabled title="Remainder calculates automatically"' : ''}>
+            <input type="range" min="0" max="100" step="0.1" value="${c.pct.toFixed(1)}" data-cat="${c.id}" 
+              ${c.locked ? 'disabled title="Click 🔒 to unlock and adjust slider"' : ''}>
             <div class="cat-meta">
-              <span class="cat-meta-label" data-id="${c.id}">${c.pct.toFixed(0)}% · ${fmtMoney(spent)} spent</span>
-              <span>${c.budget - spent < 0 ? '<span class="negative">Over budget</span>' : 'On track'}</span>
+              <span class="cat-meta-label" data-id="${c.id}">${c.pct.toFixed(1)}% · ${fmtMoney(spent)} spent</span>
+              <span>${c.budget - spent < 0 ? '<span class="negative">Over budget</span>' : (c.locked ? '<span style="color:var(--green)">Locked target</span>' : 'On track')}</span>
             </div>
           </div>
         </div>
@@ -916,7 +990,6 @@
     let totalCount = 0;
     const expenses = m.expenses || [];
 
-    // Track running balance during render pass
     const runningBal = {};
     m.categories.forEach(c => { runningBal[c.name] = c.budget; });
 
@@ -1019,24 +1092,57 @@
   // --- REACTIVE EVENT LISTENERS ---
 
   const handleIncomeUpdate = (e) => {
-    const val = +e.target.value || 0;
-    currentMonth().income = Math.max(0, val);
+    const newInc = Math.max(0, +e.target.value || 0);
+    const m = currentMonth();
+    m.income = newInc;
+
+    if (newInc <= 0) {
+      m.categories.forEach(c => { c.budget = 0; c.pct = 0; });
+    } else {
+      const lockedSum = m.categories.filter(c => c.locked).reduce((sum, c) => sum + (c.budget || 0), 0);
+      const unlocked = m.categories.filter(c => !c.locked);
+
+      if (lockedSum >= newInc) {
+        const ratio = lockedSum > 0 ? (newInc / lockedSum) : 1;
+        m.categories.forEach(c => {
+          if (c.locked) {
+            c.budget *= ratio;
+            c.pct = (c.budget / newInc) * 100;
+          } else {
+            c.budget = 0;
+            c.pct = 0;
+          }
+        });
+      } else {
+        const remainingForUnlocked = newInc - lockedSum;
+        const oldUnlockedSum = unlocked.reduce((sum, c) => sum + (c.budget || 0), 0);
+
+        m.categories.forEach(c => {
+          if (c.locked) {
+            c.pct = (c.budget / newInc) * 100;
+          } else {
+            if (oldUnlockedSum > 0) {
+              c.budget = remainingForUnlocked * (c.budget / oldUnlockedSum);
+            } else {
+              c.budget = remainingForUnlocked / (unlocked.length || 1);
+            }
+            c.pct = (c.budget / newInc) * 100;
+          }
+        });
+      }
+    }
+
     updateCalculationsLive();
     persist();
   };
   document.getElementById('inputIncome').addEventListener('input', handleIncomeUpdate);
   document.getElementById('inputIncome').addEventListener('change', handleIncomeUpdate);
 
-  // Sliders Live Drag
+  // Sliders Live Drag (Rebalances unlocked categories in real time)
   document.addEventListener('input', (e) => {
     if (e.target.dataset.cat) {
       const m = currentMonth();
-      const targetCat = m.categories.find(c => c.id === e.target.dataset.cat);
-      if (targetCat) {
-        targetCat.pct = +e.target.value;
-        delete targetCat.fixedBudget;
-        updateCalculationsLive();
-      }
+      rebalanceCategory(m, e.target.dataset.cat, +e.target.value, true);
     }
   });
 
@@ -1047,17 +1153,12 @@
     }
   });
 
-  // Typing exact target amount in Category Budget
+  // Typing exact target amount in Category Budget (Rebalances unlocked categories)
   document.addEventListener('input', (e) => {
     if (e.target.classList.contains('cat-amt-input')) {
       const m = currentMonth();
-      const cat = m.categories.find(c => c.id === e.target.dataset.id);
-      if (cat && m.income > 0) {
-        const val = +e.target.value || 0;
-        cat.fixedBudget = val;
-        cat.pct = Math.min(100, (val / m.income) * 100);
-        updateCalculationsLive();
-      }
+      const val = +e.target.value || 0;
+      rebalanceCategory(m, e.target.dataset.id, val, false);
     }
   });
 
@@ -1112,14 +1213,15 @@
       id: uid(),
       name,
       pct: 0,
-      isRemainder: false
+      budget: 0,
+      locked: false
     });
     input.value = '';
     persist();
     render();
   };
 
-  // Delegated table input edits (updates running balance live)
+  // Delegated table input edits (updates waterfall balance live)
   document.addEventListener('input', (e) => {
     if (e.target.dataset.field === 'spent' || e.target.dataset.newentry === 'spent') {
       updateCalculationsLive();
@@ -1155,9 +1257,22 @@
     }
   });
 
-  // Delegated button clicks
+  // Delegated clicks for Lock Toggle and Buttons
   document.addEventListener('click', (e) => {
     const m = currentMonth();
+
+    // Toggle Category Lock State
+    const lockBtn = e.target.closest('[data-togglelock]');
+    if (lockBtn) {
+      const catId = lockBtn.dataset.togglelock;
+      const cat = m.categories.find(c => c.id === catId);
+      if (cat) {
+        cat.locked = !cat.locked;
+        persist();
+        render();
+      }
+      return;
+    }
 
     if (e.target.dataset.addinst) {
       const day = +e.target.dataset.addinst;
@@ -1225,7 +1340,7 @@
     render();
   };
 
-  // Cloud Sync modal
+  // Cloud Sync setup modal
   document.getElementById('cloudSyncBtn').onclick = () => {
     const curGist = SYNC_CONFIG.gistId;
     const curTok = SYNC_CONFIG.token ? '••••••••' + SYNC_CONFIG.token.slice(-4) : '';
