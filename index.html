@@ -85,7 +85,6 @@
     }
     .month-tab.active { background: #173522; color: #b9ffd5; border-color: #2d774b; font-weight: 700; }
 
-    /* 6-box summary grid */
     .summary {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -161,7 +160,6 @@
     }
     tr.is-subrow td { border-top: 1px dashed #17241c; background: rgba(255,255,255,0.008); }
 
-    /* Category Sliders & Controls */
     .category-list { display: grid; gap: 10px; }
     .cat-row {
       padding: 12px;
@@ -247,7 +245,7 @@
       <span class="sync-badge" id="syncStatus">Local Only</span>
       <button class="btn" id="cloudSyncBtn">☁️ Cloud Sync</button>
       <button class="btn danger" id="resetDataBtn" title="Wipe stored sample data to clean state">↺ Reset</button>
-      <button class="btn" id="currencyBtn">Currency: <b id="currLabel">RM</b></button>
+      <button class="btn" id="currencyBtn">Currency: <b id="currLabel">MYR</b></button>
       <button class="btn" id="dupMonthBtn">Duplicate Month</button>
       <button class="btn primary" id="addMonthBtn">+ Add Month</button>
     </div>
@@ -259,32 +257,32 @@
   <div class="summary">
     <div class="stat">
       <span>Monthly Income</span>
-      <strong id="statIncome">RM 0.00</strong>
+      <strong id="statIncome">MYR 0.00</strong>
       <small>Base take-home</small>
     </div>
     <div class="stat">
       <span>Savings</span>
-      <strong id="statSavings">RM 0.00</strong>
-      <small id="statSavingsSub">50% share</small>
+      <strong id="statSavings">MYR 0.00</strong>
+      <small id="statSavingsSub">0% share</small>
     </div>
     <div class="stat">
       <span>Needs</span>
-      <strong id="statNeeds">RM 0.00</strong>
-      <small id="statNeedsSub">Left: RM 0.00</small>
+      <strong id="statNeeds">MYR 0.00</strong>
+      <small id="statNeedsSub">Left: MYR 0.00</small>
     </div>
     <div class="stat">
       <span>Wants</span>
-      <strong id="statWants">RM 0.00</strong>
-      <small id="statWantsSub">Left: RM 0.00</small>
+      <strong id="statWants">MYR 0.00</strong>
+      <small id="statWantsSub">Left: MYR 0.00</small>
     </div>
     <div class="stat">
       <span>Remaining</span>
-      <strong id="statRemaining" class="positive">RM 0.00</strong>
+      <strong id="statRemaining" class="positive">MYR 0.00</strong>
       <small id="statRemainingSub">Net unspent cash</small>
     </div>
     <div class="stat" style="border-color: #235234; background: linear-gradient(145deg, #13271c, #0e1a13);">
       <span style="color:var(--green)">★ Goals (Total)</span>
-      <strong id="statGoals" class="positive">RM 0.00</strong>
+      <strong id="statGoals" class="positive">MYR 0.00</strong>
       <small id="statGoalsSub">Base + Unspent surplus</small>
     </div>
   </div>
@@ -346,7 +344,7 @@
             <button class="btn" id="createCatBtn">Add</button>
           </div>
           <p class="small" style="margin-top:12px;line-height:1.4">
-            * Drag sliders or type amounts directly. The <b>Goals</b> remainder dynamically absorbs the leftover allowance.
+            * Drag sliders or type amounts directly. Unspent funds waterfall into <b>Goals</b>.
           </p>
         </div>
       </section>
@@ -373,7 +371,7 @@
 
 <script>
 (() => {
-  const STORAGE_KEY = 'budget_planner_v6_clean';
+  const STORAGE_KEY = 'budget_planner_v7_running';
   const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const PALETTE = ['#45d483', '#5eb9e6', '#d7c56b', '#d98eeb', '#ef9d6b', '#9da7ff', '#78c8c1', '#f38282'];
 
@@ -381,10 +379,9 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   const defaultCategories = () => [
-    { id: uid(), name: 'Savings', pct: 50, isRemainder: false },
-    { id: uid(), name: 'Needs', pct: 20, isRemainder: false },
-    { id: uid(), name: 'Wants', pct: 30, isRemainder: false },
-    { id: uid(), name: 'Goals', pct: 0, isRemainder: true }
+    { id: uid(), name: 'Savings', pct: 0, isRemainder: false },
+    { id: uid(), name: 'Needs', pct: 28, isRemainder: false },
+    { id: uid(), name: 'Wants', pct: 72, isRemainder: false }
   ];
 
   const createBlankMonth = (y, m) => ({
@@ -399,8 +396,10 @@
   const now = new Date();
   let appState = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
   if (!appState || !appState.months || appState.months.length === 0) {
-    appState = {
-      currency: 'RM',
+    // Check if migration from v6 is possible
+    const prev = JSON.parse(localStorage.getItem('budget_planner_v6_clean') || 'null');
+    appState = prev || {
+      currency: 'MYR',
       activeMonthIdx: 0,
       showAllDays: true,
       months: [createBlankMonth(now.getFullYear(), now.getMonth())]
@@ -506,7 +505,11 @@
       if (!c.isRemainder) {
         c.pct = Math.max(0, Math.min(100, +c.pct || 0));
         nonRemainderPct += c.pct;
-        c.budget = (c.pct / 100) * inc;
+        if (c.fixedBudget !== undefined && c.fixedBudget !== null) {
+          c.budget = +c.fixedBudget;
+        } else {
+          c.budget = (c.pct / 100) * inc;
+        }
       }
     });
 
@@ -528,12 +531,12 @@
     return m.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
   }
 
-  // Returns "Wants" by default, or the first category if Wants isn't found
   function getDefaultExpenseCat(m) {
     const wants = findCat(m, 'Wants');
     return wants ? wants.name : (m.categories[0]?.name || 'Wants');
   }
 
+  // Real-time calculation engine with waterfall running balance
   function updateCalculationsLive() {
     const m = currentMonth();
     calculateBudgets(m);
@@ -573,20 +576,19 @@
     wantsSub.textContent = `Left: ${fmtMoney(wantsLeft)}`;
     wantsSub.className = wantsLeft < 0 ? 'negative' : '';
 
-    // 5. Remaining
+    // 5. Remaining (Actual Unspent Cash in Bank)
     const remElem = document.getElementById('statRemaining');
     remElem.textContent = fmtMoney(netRemaining);
     remElem.className = netRemaining < 0 ? 'negative' : 'positive';
     document.getElementById('statRemainingSub').textContent = inc > 0 ? 'Net unspent cash' : 'Enter income to start';
 
-    // 6. Goals
-    const goalsCat = m.categories.find(c => c.isRemainder || c.name.toLowerCase() === 'goals');
-    const goalsBase = goalsCat ? goalsCat.budget : 0;
-    const needsSurplus = Math.max(0, needsLeft);
-    const wantsSurplus = Math.max(0, wantsLeft);
-    const goalsTotal = goalsBase + needsSurplus + wantsSurplus;
+    // 6. Goals Pot: All unspent cash minus untouchable active savings reserve
+    const savLocked = Math.max(0, savVal - savSpent);
+    const goalsTotal = Math.max(0, netRemaining - savLocked);
     document.getElementById('statGoals').textContent = fmtMoney(goalsTotal);
-    document.getElementById('statGoalsSub').textContent = `Base: ${fmtMoney(goalsBase)} + Surplus: ${fmtMoney(needsSurplus + wantsSurplus)}`;
+    document.getElementById('statGoalsSub').textContent = savLocked > 0 
+      ? `Remaining unspent - Locked Savings (${fmtMoney(savLocked)})`
+      : `All unspent cash waterfalls here`;
 
     // Update Slider Row Elements
     m.categories.forEach(c => {
@@ -610,7 +612,7 @@
     const totalAllocPct = m.categories.reduce((acc, c) => acc + c.pct, 0);
     document.getElementById('allocStatus').textContent = `${totalAllocPct.toFixed(0)}% allocated`;
 
-    // Donut Chart
+    // Update Donut Chart
     let cursor = 0;
     const slices = m.categories.map((c, i) => {
       const share = totalBudgeted > 0 ? (c.budget / totalBudgeted) * 100 : 0;
@@ -621,19 +623,35 @@
     document.getElementById('donutChart').style.background = totalBudgeted > 0 ? `conic-gradient(${slices.join(',')})` : '#202a24';
     document.getElementById('chartVal').textContent = fmtMoney(totalBudgeted).replace('.00','');
 
-    // Category Remaining column in Ledger
-    document.querySelectorAll('.cat-rem-col').forEach(cell => {
-      const catName = cell.dataset.catname;
-      const cat = m.categories.find(c => c.name === catName) || m.categories[0];
-      if (cat) {
-        const spent = getCategorySpent(m, cat.name);
-        const rem = cat.budget - spent;
-        cell.innerHTML = `<b>${fmtMoney(rem)}</b>`;
-        cell.className = `cat-rem-col ${rem < 0 ? 'negative' : 'positive'}`;
+    // WATERFALL RUNNING BALANCE RECALCULATION
+    const runningBal = {};
+    m.categories.forEach(c => { runningBal[c.name] = c.budget; });
+
+    document.querySelectorAll('#txBody tr').forEach(tr => {
+      const catSelect = tr.querySelector('select[data-field="category"], select[data-newentry="category"]');
+      const spentInput = tr.querySelector('input[data-field="spent"], input[data-newentry="spent"]');
+      const remCol = tr.querySelector('.cat-rem-col');
+
+      if (catSelect && remCol) {
+        const cat = catSelect.value;
+        const spent = +(spentInput?.value || 0);
+
+        if (runningBal[cat] === undefined) {
+          const catObj = m.categories.find(c => c.name === cat);
+          runningBal[cat] = catObj ? catObj.budget : 0;
+        }
+
+        // Subtract spent progressively going down each row
+        runningBal[cat] -= spent;
+        const currentRem = runningBal[cat];
+
+        remCol.dataset.catname = cat;
+        remCol.innerHTML = `<b>${fmtMoney(currentRem)}</b>`;
+        remCol.className = `cat-rem-col ${currentRem < 0 ? 'negative' : 'positive'}`;
       }
     });
 
-    // Legend
+    // Update Legend
     document.getElementById('legendList').innerHTML = m.categories.map((c, i) => `
       <div class="legend-row">
         <div class="legend-left">
@@ -672,7 +690,7 @@
       </div>
     `).join('');
 
-    // Category sliders
+    // Categories
     document.getElementById('categoryContainer').innerHTML = m.categories.map((c, i) => {
       const spent = getCategorySpent(m, c.name);
       const col = PALETTE[i % PALETTE.length];
@@ -704,12 +722,16 @@
       `;
     }).join('');
 
-    // Spending Ledger Table
+    // Spending Ledger Table Initial Build
     document.getElementById('viewToggleBtn').textContent = appState.showAllDays ? 'View: All Days (1–31)' : 'View: Active Days Only';
 
     let tableHtml = '';
     let totalCount = 0;
     const expenses = m.expenses || [];
+
+    // Track running balance during render pass
+    const runningBal = {};
+    m.categories.forEach(c => { runningBal[c.name] = c.budget; });
 
     for (let day = 1; day <= totalDays; day++) {
       const dayInstances = expenses.filter(e => +e.day === day);
@@ -718,10 +740,8 @@
       if (!appState.showAllDays && dayInstances.length === 0) continue;
 
       if (dayInstances.length === 0) {
-        // Defaults to "Wants"
-        const defaultCatObj = m.categories.find(c => c.name === defaultCatName) || m.categories[0];
-        const catSpent = getCategorySpent(m, defaultCatName);
-        const catRem = (defaultCatObj?.budget || 0) - catSpent;
+        const cat = defaultCatName;
+        const curRem = runningBal[cat] ?? 0;
 
         tableHtml += `
           <tr data-day="${day}">
@@ -738,7 +758,7 @@
             </td>
             <td><input type="text" placeholder="Add expense..." data-newentry="note" data-day="${day}"></td>
             <td><input class="money-input" type="number" step="0.01" placeholder="0.00" data-newentry="spent" data-day="${day}"></td>
-            <td style="text-align:right" class="cat-rem-col ${catRem < 0 ? 'negative' : 'positive'}" data-catname="${defaultCatName}"><b>${fmtMoney(catRem)}</b></td>
+            <td style="text-align:right" class="cat-rem-col ${curRem < 0 ? 'negative' : 'positive'}" data-catname="${cat}"><b>${fmtMoney(curRem)}</b></td>
             <td></td>
           </tr>
         `;
@@ -746,9 +766,15 @@
         dayInstances.forEach((inst, instIdx) => {
           totalCount++;
           const isFirst = instIdx === 0;
-          const cat = m.categories.find(c => c.name === inst.category) || m.categories[0];
-          const catSpent = getCategorySpent(m, cat ? cat.name : '');
-          const catRem = (cat ? cat.budget : 0) - catSpent;
+          const cat = inst.category;
+          const spent = +inst.spent || 0;
+
+          if (runningBal[cat] === undefined) {
+            const catObj = m.categories.find(c => c.name === cat);
+            runningBal[cat] = catObj ? catObj.budget : 0;
+          }
+          runningBal[cat] -= spent;
+          const curRem = runningBal[cat];
 
           tableHtml += `
             <tr class="${isFirst ? '' : 'is-subrow'}">
@@ -770,7 +796,7 @@
               </td>
               <td><input type="text" value="${esc(inst.note || '')}" placeholder="Expense description..." data-txid="${inst.id}" data-field="note"></td>
               <td><input class="money-input" type="number" step="0.01" value="${inst.spent ?? ''}" placeholder="0.00" data-txid="${inst.id}" data-field="spent"></td>
-              <td style="text-align:right" class="cat-rem-col ${catRem < 0 ? 'negative' : 'positive'}" data-catname="${cat ? cat.name : ''}"><b>${fmtMoney(catRem)}</b></td>
+              <td style="text-align:right" class="cat-rem-col ${curRem < 0 ? 'negative' : 'positive'}" data-catname="${cat}"><b>${fmtMoney(curRem)}</b></td>
               <td style="text-align:center"><button class="btn danger btn-sm" data-deltx="${inst.id}">×</button></td>
             </tr>
           `;
@@ -802,6 +828,7 @@
       const targetCat = m.categories.find(c => c.id === e.target.dataset.cat);
       if (targetCat) {
         targetCat.pct = +e.target.value;
+        delete targetCat.fixedBudget;
         updateCalculationsLive();
       }
     }
@@ -814,13 +841,14 @@
     }
   });
 
-  // Typing exact target amount
+  // Typing exact target amount in Category Budget
   document.addEventListener('input', (e) => {
     if (e.target.classList.contains('cat-amt-input')) {
       const m = currentMonth();
       const cat = m.categories.find(c => c.id === e.target.dataset.id);
       if (cat && m.income > 0) {
         const val = +e.target.value || 0;
+        cat.fixedBudget = val;
         cat.pct = Math.min(100, (val / m.income) * 100);
         updateCalculationsLive();
       }
@@ -853,7 +881,7 @@
   };
 
   document.getElementById('currencyBtn').onclick = () => {
-    const val = prompt('Enter currency symbol (e.g. RM, $, €, £):', appState.currency);
+    const val = prompt('Enter currency symbol (e.g. RM, MYR, $, €, £):', appState.currency);
     if (val !== null && val.trim() !== '') {
       appState.currency = val.trim();
       persist();
@@ -885,7 +913,13 @@
     render();
   };
 
-  // Delegated table input edits
+  // Delegated table input edits (updates running balance live)
+  document.addEventListener('input', (e) => {
+    if (e.target.dataset.field === 'spent' || e.target.dataset.newentry === 'spent') {
+      updateCalculationsLive();
+    }
+  });
+
   document.addEventListener('change', (e) => {
     const m = currentMonth();
 
@@ -906,15 +940,6 @@
       const note = row.querySelector('[data-newentry="note"]').value;
       const spent = +row.querySelector('[data-newentry="spent"]').value || 0;
 
-      // Update remaining column dynamically if category dropdown alone was changed
-      if (e.target.dataset.newentry === 'category') {
-        const remCell = row.querySelector('.cat-rem-col');
-        if (remCell) {
-          remCell.dataset.catname = cat;
-          updateCalculationsLive();
-        }
-      }
-
       if (spent > 0 || note.trim()) {
         m.expenses = m.expenses || [];
         m.expenses.push({ id: uid(), day, category: cat, note, spent });
@@ -928,7 +953,6 @@
   document.addEventListener('click', (e) => {
     const m = currentMonth();
 
-    // Add instance: defaults to "Wants"
     if (e.target.dataset.addinst) {
       const day = +e.target.dataset.addinst;
       const defaultCat = getDefaultExpenseCat(m);
@@ -944,28 +968,24 @@
       render();
     }
 
-    // Delete instance
     if (e.target.dataset.deltx) {
       m.expenses = (m.expenses || []).filter(tx => tx.id !== e.target.dataset.deltx);
       persist();
       render();
     }
 
-    // Delete category
     if (e.target.dataset.delcat) {
       m.categories = m.categories.filter(c => c.id !== e.target.dataset.delcat);
       persist();
       render();
     }
 
-    // Switch month tab
     if (e.target.dataset.switch) {
       appState.activeMonthIdx = +e.target.dataset.switch;
       persist();
       render();
     }
 
-    // Delete entire month
     if (e.target.dataset.delmonth) {
       const idx = +e.target.dataset.delmonth;
       if (confirm('Delete this month plan?')) {
@@ -999,7 +1019,7 @@
     render();
   };
 
-  // Cloud Sync setup modal
+  // Cloud Sync modal
   document.getElementById('cloudSyncBtn').onclick = () => {
     const curGist = SYNC_CONFIG.gistId;
     const curTok = SYNC_CONFIG.token ? '••••••••' + SYNC_CONFIG.token.slice(-4) : '';
