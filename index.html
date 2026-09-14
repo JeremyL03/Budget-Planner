@@ -29,7 +29,94 @@
       font: 14px system-ui, -apple-system, sans-serif;
       min-height: 100vh;
     }
-    .app { max-width: 1440px; margin: auto; padding: 24px; }
+    .app {
+      max-width: 1440px;
+      margin: auto;
+      padding: 24px;
+      transition: filter 0.25s ease;
+    }
+    .app.is-blurred {
+      filter: blur(14px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Lock Overlay */
+    .lock-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 13, 11, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .lock-card {
+      background: #101713;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+    }
+    .lock-icon {
+      font-size: 38px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+    .lock-card h2 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .lock-card p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .lock-input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 2px;
+      background: #080d0a;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      margin-bottom: 14px;
+      outline: none;
+    }
+    .lock-input:focus {
+      border-color: var(--green);
+    }
+    .lock-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      background: var(--green);
+      color: #07120b;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .lock-btn:hover {
+      background: #53e090;
+    }
+    .lock-msg {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--danger);
+      min-height: 16px;
+    }
+
     header {
       display: flex;
       justify-content: space-between;
@@ -427,7 +514,22 @@
   </style>
 </head>
 <body>
-<div class="app">
+
+<!-- Master PIN / Password Lock Overlay -->
+<div id="lockOverlay" class="lock-overlay">
+  <div class="lock-card">
+    <div class="lock-icon" id="lockIcon">🔒</div>
+    <h2 id="lockTitle">Budget Vault</h2>
+    <p id="lockDesc">Enter your PIN to access your finances.</p>
+    <form id="lockForm" onsubmit="return false;">
+      <input type="password" id="pinInput" class="lock-input" placeholder="••••" autocomplete="current-password" autofocus>
+      <button type="submit" id="unlockBtn" class="lock-btn">Unlock Dashboard</button>
+    </form>
+    <div id="lockError" class="lock-msg"></div>
+  </div>
+</div>
+
+<div class="app is-blurred" id="appContent">
   <header>
     <div>
       <h1>Monthly Budget Planner</h1>
@@ -436,6 +538,8 @@
     <div class="actions">
       <span class="sync-badge" id="syncStatus">Local Only</span>
       <button class="btn" id="cloudSyncBtn">☁️ Cloud Sync</button>
+      <button class="btn" id="lockScreenBtn" title="Lock the application">🔒 Lock</button>
+      <button class="btn" id="changePinBtn" title="Change Master PIN">🔑 Change PIN</button>
       <button class="btn danger" id="resetDataBtn" title="Wipe stored data to clean state">↺ Reset</button>
       <button class="btn" id="currencyBtn">Currency: <b id="currLabel">MYR</b></button>
       <button class="btn" id="dupMonthBtn">Duplicate Month</button>
@@ -566,12 +670,112 @@
 <script>
 (() => {
   const STORAGE_KEY = 'budget_planner_v7_running';
+  const PIN_KEY = 'budget_app_pin_hash';
   const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const PALETTE = ['#45d483', '#5eb9e6', '#d7c56b', '#d98eeb', '#ef9d6b', '#9da7ff', '#78c8c1', '#f38282'];
 
   const uid = () => Math.random().toString(36).substring(2, 9);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+  // --- NATIVE SHA-256 HASHING HELPER ---
+  async function hashText(str) {
+    const buffer = new TextEncoder().encode(str);
+    const digest = await crypto.subtle.digest('SHA-256', buffer);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // --- PIN / LOCKSCREEN CONTROLLER ---
+  const lockOverlay = document.getElementById('lockOverlay');
+  const appContent = document.getElementById('appContent');
+  const lockTitle = document.getElementById('lockTitle');
+  const lockDesc = document.getElementById('lockDesc');
+  const pinInput = document.getElementById('pinInput');
+  const unlockBtn = document.getElementById('unlockBtn');
+  const lockError = document.getElementById('lockError');
+  const lockIcon = document.getElementById('lockIcon');
+
+  let isSetupMode = !localStorage.getItem(PIN_KEY);
+
+  function configureLockUI() {
+    isSetupMode = !localStorage.getItem(PIN_KEY);
+    if (isSetupMode) {
+      lockIcon.textContent = '🛡️';
+      lockTitle.textContent = 'Create Master PIN';
+      lockDesc.textContent = 'Set a PIN or password to secure your budget planner.';
+      unlockBtn.textContent = 'Set PIN & Open';
+    } else {
+      lockIcon.textContent = '🔒';
+      lockTitle.textContent = 'Budget Vault Locked';
+      lockDesc.textContent = 'Enter your Master PIN to view your finances.';
+      unlockBtn.textContent = 'Unlock Dashboard';
+    }
+    pinInput.value = '';
+    lockError.textContent = '';
+  }
+
+  function showLockScreen() {
+    configureLockUI();
+    lockOverlay.style.display = 'flex';
+    appContent.classList.add('is-blurred');
+    setTimeout(() => pinInput.focus(), 50);
+  }
+
+  function hideLockScreen() {
+    lockOverlay.style.display = 'none';
+    appContent.classList.remove('is-blurred');
+  }
+
+  async function handleUnlockAttempt() {
+    const val = pinInput.value.trim();
+    if (!val) {
+      lockError.textContent = 'Please enter a PIN or password.';
+      return;
+    }
+
+    const hashed = await hashText(val);
+
+    if (isSetupMode) {
+      localStorage.setItem(PIN_KEY, hashed);
+      hideLockScreen();
+      render();
+    } else {
+      const storedHash = localStorage.getItem(PIN_KEY);
+      if (hashed === storedHash) {
+        hideLockScreen();
+        render();
+      } else {
+        lockError.textContent = 'Incorrect PIN. Please try again.';
+        pinInput.value = '';
+        pinInput.focus();
+      }
+    }
+  }
+
+  unlockBtn.onclick = handleUnlockAttempt;
+  document.getElementById('lockForm').onsubmit = (e) => {
+    e.preventDefault();
+    handleUnlockAttempt();
+  };
+
+  document.getElementById('lockScreenBtn').onclick = showLockScreen;
+
+  document.getElementById('changePinBtn').onclick = async () => {
+    const currentAttempt = prompt('Enter your CURRENT Master PIN:');
+    if (currentAttempt === null) return;
+    const currentHash = await hashText(currentAttempt.trim());
+    if (currentHash !== localStorage.getItem(PIN_KEY)) {
+      alert('Incorrect current PIN!');
+      return;
+    }
+    const newPin = prompt('Enter your NEW Master PIN or password:');
+    if (newPin && newPin.trim()) {
+      const newHash = await hashText(newPin.trim());
+      localStorage.setItem(PIN_KEY, newHash);
+      alert('Master PIN updated successfully!');
+    }
+  };
+
+  // --- STATE INITIALIZATION ---
   const defaultCategories = () => [
     { id: uid(), name: 'Savings', pct: 0, budget: 0, locked: true },
     { id: uid(), name: 'Needs', pct: 28, budget: 0, locked: false },
@@ -599,7 +803,6 @@
     };
   }
 
-  // Ensure all categories have locked property & initial budget initialized
   appState.months.forEach(m => {
     m.categories.forEach(c => {
       if (c.locked === undefined) c.locked = (c.name.toLowerCase() === 'savings');
@@ -1164,7 +1367,7 @@
     }
   });
 
-  // Typing exact target amount in Category Budget
+  // Target amount input
   document.addEventListener('input', (e) => {
     if (e.target.classList.contains('cat-amt-input')) {
       const m = currentMonth();
@@ -1268,11 +1471,10 @@
     }
   });
 
-  // Delegated button clicks
+  // Delegated clicks for Lock Toggle and Buttons
   document.addEventListener('click', (e) => {
     const m = currentMonth();
 
-    // Toggle Category Lock State
     const lockBtn = e.target.closest('[data-togglelock]');
     if (lockBtn) {
       const catId = lockBtn.dataset.togglelock;
@@ -1285,7 +1487,6 @@
       return;
     }
 
-    // Switch month tab safely
     const tabBtn = e.target.closest('[data-switch]');
     if (tabBtn) {
       appState.activeMonthIdx = +tabBtn.dataset.switch;
@@ -1322,7 +1523,6 @@
     }
   });
 
-  // Dedicated "Delete Month" action with confirmation
   document.getElementById('delMonthBtn').onclick = () => {
     if (appState.months.length <= 1) return;
     const cur = currentMonth();
@@ -1402,8 +1602,8 @@
     }
   };
 
-  // Initial Run
-  render();
+  // --- INITIAL BOOTSTRAP ---
+  showLockScreen();
 
   if (SYNC_CONFIG.gistId && SYNC_CONFIG.token) {
     pullFromCloud().then(data => {
