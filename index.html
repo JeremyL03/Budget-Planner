@@ -10,10 +10,15 @@
       --panel: #101713;
       --panel-alt: #0b110e;
       --line: #26332b;
+      --line-subtle: rgba(38, 51, 43, 0.55);
       --text: #edf5ef;
       --muted: #91a096;
       --green: #45d483;
+      --green-glow: rgba(69, 212, 131, 0.12);
+      --green-border: rgba(69, 212, 131, 0.28);
       --danger: #ef7272;
+      --danger-glow: rgba(239, 114, 114, 0.14);
+      --danger-border: rgba(239, 114, 114, 0.3);
       --accent: #5eb9e6;
     }
     * { box-sizing: border-box; }
@@ -48,16 +53,7 @@
     .btn.danger { color: #ff9b9b; background: transparent; border-color: transparent; }
     .btn.danger:hover { background: #381a1a; }
     .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 6px; }
-    .btn-icon {
-      padding: 2px 7px;
-      font-size: 12px;
-      border-radius: 4px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--green);
-      font-weight: bold;
-    }
-    .btn-icon:hover { background: #1a3022; border-color: var(--green); }
+    
     .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     
     .sync-badge {
@@ -85,6 +81,7 @@
     }
     .month-tab.active { background: #173522; color: #b9ffd5; border-color: #2d774b; font-weight: 700; }
 
+    /* 6-box summary grid */
     .summary {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -131,24 +128,107 @@
     .field-group { display: flex; align-items: center; gap: 8px; }
     label, .small { color: var(--muted); font-size: 12px; }
     .money-input { width: 130px; text-align: right; font-weight: 700; color: var(--green); }
-    
-    table { width: 100%; border-collapse: collapse; }
-    th {
+
+    /* ========================================================
+       NEW HIGH-CLARITY TABLE DESIGN
+       ======================================================== */
+    .table-container {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0c120f;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    thead th {
+      background: #121a15;
       color: var(--muted);
       font-size: 11px;
-      text-align: left;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 10px 8px;
+      letter-spacing: 0.6px;
+      padding: 11px 12px;
       border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line-subtle);
     }
-    td { padding: 6px 8px; border-bottom: 1px solid #16201a; vertical-align: middle; }
-    td input, td select { width: 100%; border-color: transparent; background: transparent; }
-    td input:focus, td select:focus { border-color: var(--line); background: var(--panel); }
+    thead th:last-child {
+      border-right: none;
+    }
 
-    .day-cell { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-    .day-badge { font-weight: 700; color: var(--text); min-width: 22px; }
-    .day-sub-badge { color: var(--muted); font-size: 11px; padding-left: 8px; }
+    tbody td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #141c17;
+      border-right: 1px solid var(--line-subtle);
+      vertical-align: middle;
+    }
+    tbody td:last-child {
+      border-right: none;
+    }
+
+    /* Day boundary line to distinguish each date */
+    tr.day-boundary td {
+      border-top: 2px solid #23352a;
+    }
+    tr.is-subrow td {
+      background: rgba(255, 255, 255, 0.015);
+      border-top: 1px dashed rgba(38, 51, 43, 0.5);
+    }
+    tr:hover td {
+      background: rgba(69, 212, 131, 0.02);
+    }
+
+    /* 1. Day Column */
+    td.col-day {
+      background: #090e0b;
+      width: 145px;
+    }
+    .day-cell {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+    .day-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 26px;
+      background: #14231a;
+      border: 1px solid #254231;
+      border-radius: 6px;
+      color: #b9ffd5;
+      font-weight: 800;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+    }
+    .btn-add-inst {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--green);
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .btn-add-inst:hover {
+      background: #193424;
+      border-color: var(--green);
+    }
+    .day-sub-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      padding-left: 6px;
+    }
     .day-total-badge {
       font-size: 10px;
       color: var(--muted);
@@ -157,9 +237,117 @@
       border-radius: 4px;
       border: 1px solid #203327;
       margin-left: auto;
+      font-family: ui-monospace, monospace;
     }
-    tr.is-subrow td { border-top: 1px dashed #17241c; background: rgba(255,255,255,0.008); }
 
+    /* 2. Category Dropdown Column */
+    td.col-cat {
+      width: 165px;
+    }
+    .table-select {
+      width: 100%;
+      background: #0c1611 url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2391a096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 9px center;
+      background-size: 11px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1px solid #1f2c24;
+      border-radius: 7px;
+      padding: 6px 28px 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .table-select:focus {
+      border-color: var(--green);
+      background-color: #101d16;
+      outline: none;
+    }
+
+    /* 3. Description Note Column */
+    .table-note-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 6px 8px;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .table-note-input:hover {
+      border-color: #1f2b23;
+    }
+    .table-note-input:focus {
+      border-color: var(--line);
+      background: #0e1612;
+      outline: none;
+    }
+
+    /* 4. Spent Column */
+    td.col-spent {
+      width: 125px;
+      text-align: right;
+    }
+    .table-spent-box {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      background: #090e0b;
+      border: 1px solid #1c2820;
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+    .table-spent-box:focus-within {
+      border-color: var(--green);
+      background: #0d1611;
+    }
+    .table-spent-input {
+      width: 80px;
+      background: transparent;
+      border: 0;
+      text-align: right;
+      color: #fff;
+      font-weight: 700;
+      font-family: ui-monospace, monospace;
+      padding: 0;
+      outline: none;
+    }
+
+    /* 5. Remaining Waterfall Column */
+    td.col-rem {
+      width: 140px;
+      text-align: right;
+    }
+    .rem-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+      letter-spacing: -0.2px;
+    }
+    .rem-badge.positive {
+      background: var(--green-glow);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+    .rem-badge.negative {
+      background: var(--danger-glow);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+
+    /* 6. Action Delete Column */
+    td.col-action {
+      width: 38px;
+      text-align: center;
+    }
+
+    /* Category Sliders & Controls */
     .category-list { display: grid; gap: 10px; }
     .cat-row {
       padding: 12px;
@@ -311,16 +499,17 @@
             </div>
           </div>
 
-          <div style="overflow-x:auto">
+          <!-- Structured High-Clarity Table Container -->
+          <div class="table-container" style="overflow-x:auto">
             <table>
               <thead>
                 <tr>
-                  <th style="width:140px">Day</th>
-                  <th style="width:160px">Category</th>
+                  <th class="col-day">Day</th>
+                  <th class="col-cat">Category</th>
                   <th>Description / Note</th>
-                  <th style="width:120px;text-align:right">Spent</th>
-                  <th style="width:130px;text-align:right">Cat. Remaining</th>
-                  <th style="width:40px"></th>
+                  <th class="col-spent">Spent</th>
+                  <th class="col-rem">Cat. Remaining</th>
+                  <th class="col-action"></th>
                 </tr>
               </thead>
               <tbody id="txBody"></tbody>
@@ -396,7 +585,6 @@
   const now = new Date();
   let appState = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
   if (!appState || !appState.months || appState.months.length === 0) {
-    // Check if migration from v6 is possible
     const prev = JSON.parse(localStorage.getItem('budget_planner_v6_clean') || 'null');
     appState = prev || {
       currency: 'MYR',
@@ -623,7 +811,7 @@
     document.getElementById('donutChart').style.background = totalBudgeted > 0 ? `conic-gradient(${slices.join(',')})` : '#202a24';
     document.getElementById('chartVal').textContent = fmtMoney(totalBudgeted).replace('.00','');
 
-    // WATERFALL RUNNING BALANCE RECALCULATION
+    // WATERFALL RUNNING BALANCE RECALCULATION WITH STATUS PILLS
     const runningBal = {};
     m.categories.forEach(c => { runningBal[c.name] = c.budget; });
 
@@ -646,8 +834,7 @@
         const currentRem = runningBal[cat];
 
         remCol.dataset.catname = cat;
-        remCol.innerHTML = `<b>${fmtMoney(currentRem)}</b>`;
-        remCol.className = `cat-rem-col ${currentRem < 0 ? 'negative' : 'positive'}`;
+        remCol.innerHTML = `<span class="rem-badge ${currentRem < 0 ? 'negative' : 'positive'}">${fmtMoney(currentRem)}</span>`;
       }
     });
 
@@ -736,6 +923,7 @@
     for (let day = 1; day <= totalDays; day++) {
       const dayInstances = expenses.filter(e => +e.day === day);
       const dayTotal = dayInstances.reduce((sum, item) => sum + (+item.spent || 0), 0);
+      const dayFormatted = String(day).padStart(2, '0');
 
       if (!appState.showAllDays && dayInstances.length === 0) continue;
 
@@ -744,22 +932,30 @@
         const curRem = runningBal[cat] ?? 0;
 
         tableHtml += `
-          <tr data-day="${day}">
-            <td>
+          <tr class="day-boundary" data-day="${day}">
+            <td class="col-day">
               <div class="day-cell">
-                <span class="day-badge">${day}</span>
-                <button class="btn-icon" data-addinst="${day}" title="Add entry to Day ${day}">+</button>
+                <span class="day-chip">${dayFormatted}</span>
+                <button class="btn-add-inst" data-addinst="${day}" title="Add entry to Day ${day}">+</button>
               </div>
             </td>
-            <td>
-              <select data-newentry="category" data-day="${day}">
+            <td class="col-cat">
+              <select class="table-select" data-newentry="category" data-day="${day}">
                 ${m.categories.map(c => `<option value="${c.name}" ${c.name === defaultCatName ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
               </select>
             </td>
-            <td><input type="text" placeholder="Add expense..." data-newentry="note" data-day="${day}"></td>
-            <td><input class="money-input" type="number" step="0.01" placeholder="0.00" data-newentry="spent" data-day="${day}"></td>
-            <td style="text-align:right" class="cat-rem-col ${curRem < 0 ? 'negative' : 'positive'}" data-catname="${cat}"><b>${fmtMoney(curRem)}</b></td>
-            <td></td>
+            <td>
+              <input class="table-note-input" type="text" placeholder="Add expense note..." data-newentry="note" data-day="${day}">
+            </td>
+            <td class="col-spent">
+              <div class="table-spent-box">
+                <input class="table-spent-input" type="number" step="0.01" placeholder="0.00" data-newentry="spent" data-day="${day}">
+              </div>
+            </td>
+            <td class="col-rem cat-rem-col" data-catname="${cat}">
+              <span class="rem-badge ${curRem < 0 ? 'negative' : 'positive'}">${fmtMoney(curRem)}</span>
+            </td>
+            <td class="col-action"></td>
           </tr>
         `;
       } else {
@@ -777,27 +973,37 @@
           const curRem = runningBal[cat];
 
           tableHtml += `
-            <tr class="${isFirst ? '' : 'is-subrow'}">
-              <td>
+            <tr class="${isFirst ? 'day-boundary' : 'is-subrow'}">
+              <td class="col-day">
                 <div class="day-cell">
                   ${isFirst ? `
-                    <span class="day-badge">${day}</span>
-                    <button class="btn-icon" data-addinst="${day}" title="Add another entry to Day ${day}">+</button>
+                    <span class="day-chip">${dayFormatted}</span>
+                    <button class="btn-add-inst" data-addinst="${day}" title="Add another entry to Day ${day}">+</button>
                     ${dayInstances.length > 1 ? `<span class="day-total-badge">${fmtMoney(dayTotal)}</span>` : ''}
                   ` : `
-                    <span class="day-sub-badge">↳ #${instIdx + 1}</span>
+                    <span class="day-sub-label">↳ #${instIdx + 1}</span>
                   `}
                 </div>
               </td>
-              <td>
-                <select data-txid="${inst.id}" data-field="category">
+              <td class="col-cat">
+                <select class="table-select" data-txid="${inst.id}" data-field="category">
                   ${m.categories.map(c => `<option value="${c.name}" ${c.name === inst.category ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
                 </select>
               </td>
-              <td><input type="text" value="${esc(inst.note || '')}" placeholder="Expense description..." data-txid="${inst.id}" data-field="note"></td>
-              <td><input class="money-input" type="number" step="0.01" value="${inst.spent ?? ''}" placeholder="0.00" data-txid="${inst.id}" data-field="spent"></td>
-              <td style="text-align:right" class="cat-rem-col ${curRem < 0 ? 'negative' : 'positive'}" data-catname="${cat}"><b>${fmtMoney(curRem)}</b></td>
-              <td style="text-align:center"><button class="btn danger btn-sm" data-deltx="${inst.id}">×</button></td>
+              <td>
+                <input class="table-note-input" type="text" value="${esc(inst.note || '')}" placeholder="Expense description..." data-txid="${inst.id}" data-field="note">
+              </td>
+              <td class="col-spent">
+                <div class="table-spent-box">
+                  <input class="table-spent-input" type="number" step="0.01" value="${inst.spent ?? ''}" placeholder="0.00" data-txid="${inst.id}" data-field="spent">
+                </div>
+              </td>
+              <td class="col-rem cat-rem-col" data-catname="${cat}">
+                <span class="rem-badge ${curRem < 0 ? 'negative' : 'positive'}">${fmtMoney(curRem)}</span>
+              </td>
+              <td class="col-action">
+                <button class="btn danger btn-sm" data-deltx="${inst.id}">×</button>
+              </td>
             </tr>
           `;
         });
