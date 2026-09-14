@@ -74,12 +74,24 @@
       border: 1px solid var(--line);
       color: var(--muted);
       border-radius: 8px;
-      padding: 6px 12px;
-      display: flex;
+      padding: 8px 16px;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-weight: 600;
     }
-    .month-tab.active { background: #173522; color: #b9ffd5; border-color: #2d774b; font-weight: 700; }
+    .month-tab:hover {
+      background: #152219;
+      color: var(--text);
+    }
+    .month-tab.active {
+      background: #173522;
+      color: #b9ffd5;
+      border-color: #2d774b;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(69, 212, 131, 0.1);
+    }
 
     /* 6-box summary grid */
     .summary {
@@ -424,13 +436,15 @@
     <div class="actions">
       <span class="sync-badge" id="syncStatus">Local Only</span>
       <button class="btn" id="cloudSyncBtn">☁️ Cloud Sync</button>
-      <button class="btn danger" id="resetDataBtn" title="Wipe stored sample data to clean state">↺ Reset</button>
+      <button class="btn danger" id="resetDataBtn" title="Wipe stored data to clean state">↺ Reset</button>
       <button class="btn" id="currencyBtn">Currency: <b id="currLabel">MYR</b></button>
       <button class="btn" id="dupMonthBtn">Duplicate Month</button>
+      <button class="btn danger" id="delMonthBtn" title="Delete current month">Delete Month</button>
       <button class="btn primary" id="addMonthBtn">+ Add Month</button>
     </div>
   </header>
 
+  <!-- Clean, click-safe month navigation tabs -->
   <nav class="months" id="monthNav"></nav>
 
   <!-- 6 Reactive Summary Cards -->
@@ -715,11 +729,9 @@
 
     if (Math.abs(delta) < 0.001) return;
 
-    // Identify all other UNLOCKED categories to absorb the difference
     const unlockedOthers = m.categories.filter(c => c.id !== editId && !c.locked);
 
     if (unlockedOthers.length === 0) {
-      // All other categories locked: clamp to available remaining income
       const lockedSum = m.categories.filter(c => c.id !== editId).reduce((sum, c) => sum + (c.budget || 0), 0);
       const maxAvailable = Math.max(0, inc - lockedSum);
       targetCat.budget = Math.min(targetBudget, maxAvailable);
@@ -731,7 +743,6 @@
     const totalUnlockedBudget = unlockedOthers.reduce((sum, c) => sum + (c.budget || 0), 0);
 
     if (delta > 0) {
-      // Category wants more money: take from other unlocked categories
       const actualDelta = Math.min(delta, totalUnlockedBudget);
       targetCat.budget = oldBudget + actualDelta;
 
@@ -740,7 +751,6 @@
         c.budget = Math.max(0, c.budget - (actualDelta * share));
       });
     } else {
-      // Category reduced: give back excess to other unlocked categories
       const absDelta = -delta;
       targetCat.budget = targetBudget;
 
@@ -750,14 +760,12 @@
       });
     }
 
-    // Cent-perfect rounding reconciliation so total always matches income
     const currentTotal = m.categories.reduce((sum, c) => sum + c.budget, 0);
     const diff = inc - currentTotal;
     if (Math.abs(diff) > 0.001 && unlockedOthers.length > 0) {
       unlockedOthers[0].budget = Math.max(0, unlockedOthers[0].budget + diff);
     }
 
-    // Update percentages for all categories
     m.categories.forEach(c => {
       c.pct = inc > 0 ? (c.budget / inc) * 100 : 0;
     });
@@ -765,7 +773,6 @@
     updateCalculationsLive();
   }
 
-  // Reconcile budgets on initial load
   function normalizeInitialBudgets(m) {
     const inc = +m.income || 0;
     if (inc <= 0) {
@@ -788,7 +795,6 @@
     });
   }
 
-  // Real-time live update for cards, waterfall balances, sliders, and chart
   function updateCalculationsLive() {
     const m = currentMonth();
     const inc = +m.income || 0;
@@ -940,13 +946,18 @@
       `<option value="${idx}" ${idx === m.month ? 'selected' : ''}>${name}</option>`
     ).join('');
 
-    // Tabs
+    // Safe Month Navigation Tabs (no "x" delete buttons on tabs)
     document.getElementById('monthNav').innerHTML = appState.months.map((item, idx) => `
-      <div class="month-tab ${idx === appState.activeMonthIdx ? 'active' : ''}">
-        <span style="cursor:pointer" data-switch="${idx}">${MONTH_NAMES[item.month]} ${item.year}</span>
-        ${appState.months.length > 1 ? `<button class="btn danger btn-sm" data-delmonth="${idx}">×</button>` : ''}
-      </div>
+      <button class="month-tab ${idx === appState.activeMonthIdx ? 'active' : ''}" data-switch="${idx}">
+        ${MONTH_NAMES[item.month]} ${item.year}
+      </button>
     `).join('');
+
+    // Hide Delete Month button if only 1 month remains
+    const delBtn = document.getElementById('delMonthBtn');
+    if (delBtn) {
+      delBtn.style.display = appState.months.length > 1 ? 'inline-block' : 'none';
+    }
 
     // Categories with Lock Button
     document.getElementById('categoryContainer').innerHTML = m.categories.map((c, i) => {
@@ -1138,7 +1149,7 @@
   document.getElementById('inputIncome').addEventListener('input', handleIncomeUpdate);
   document.getElementById('inputIncome').addEventListener('change', handleIncomeUpdate);
 
-  // Sliders Live Drag (Rebalances unlocked categories in real time)
+  // Sliders Live Drag
   document.addEventListener('input', (e) => {
     if (e.target.dataset.cat) {
       const m = currentMonth();
@@ -1153,7 +1164,7 @@
     }
   });
 
-  // Typing exact target amount in Category Budget (Rebalances unlocked categories)
+  // Typing exact target amount in Category Budget
   document.addEventListener('input', (e) => {
     if (e.target.classList.contains('cat-amt-input')) {
       const m = currentMonth();
@@ -1221,7 +1232,7 @@
     render();
   };
 
-  // Delegated table input edits (updates waterfall balance live)
+  // Delegated table input edits
   document.addEventListener('input', (e) => {
     if (e.target.dataset.field === 'spent' || e.target.dataset.newentry === 'spent') {
       updateCalculationsLive();
@@ -1257,7 +1268,7 @@
     }
   });
 
-  // Delegated clicks for Lock Toggle and Buttons
+  // Delegated button clicks
   document.addEventListener('click', (e) => {
     const m = currentMonth();
 
@@ -1271,6 +1282,15 @@
         persist();
         render();
       }
+      return;
+    }
+
+    // Switch month tab safely
+    const tabBtn = e.target.closest('[data-switch]');
+    if (tabBtn) {
+      appState.activeMonthIdx = +tabBtn.dataset.switch;
+      persist();
+      render();
       return;
     }
 
@@ -1300,23 +1320,20 @@
       persist();
       render();
     }
+  });
 
-    if (e.target.dataset.switch) {
-      appState.activeMonthIdx = +e.target.dataset.switch;
+  // Dedicated "Delete Month" action with confirmation
+  document.getElementById('delMonthBtn').onclick = () => {
+    if (appState.months.length <= 1) return;
+    const cur = currentMonth();
+    const monthTitle = `${MONTH_NAMES[cur.month]} ${cur.year}`;
+    if (confirm(`Are you sure you want to delete "${monthTitle}"? This cannot be undone.`)) {
+      appState.months.splice(appState.activeMonthIdx, 1);
+      appState.activeMonthIdx = Math.max(0, appState.activeMonthIdx - 1);
       persist();
       render();
     }
-
-    if (e.target.dataset.delmonth) {
-      const idx = +e.target.dataset.delmonth;
-      if (confirm('Delete this month plan?')) {
-        appState.months.splice(idx, 1);
-        appState.activeMonthIdx = Math.max(0, appState.activeMonthIdx - 1);
-        persist();
-        render();
-      }
-    }
-  });
+  };
 
   document.getElementById('addMonthBtn').onclick = () => {
     const last = currentMonth();
