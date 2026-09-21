@@ -343,21 +343,29 @@
     .table-note-input:hover { border-color: #1f2b23; }
     .table-note-input:focus { border-color: var(--line); background: #0e1612; outline: none; }
 
-    /* 4. Spent Column */
-    td.col-spent { width: 125px; text-align: right; }
+    /* 4. Spent / Received Flow Column */
+    td.col-spent { width: 160px; text-align: right; }
     .table-spent-box {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 5px;
       background: #090e0b;
       border: 1px solid #1c2820;
       border-radius: 6px;
-      padding: 3px 8px;
+      padding: 2px 6px;
+      transition: all 0.15s ease;
     }
     .table-spent-box:focus-within { border-color: var(--green); background: #0d1611; }
+    .table-spent-box.is-received {
+      border-color: rgba(69, 212, 131, 0.45);
+      background: rgba(69, 212, 131, 0.09);
+    }
+    .table-spent-box.is-spent {
+      border-color: rgba(239, 114, 114, 0.25);
+    }
     .table-spent-input {
-      width: 80px;
+      width: 75px;
       background: transparent;
       border: 0;
       text-align: right;
@@ -366,6 +374,44 @@
       font-family: ui-monospace, monospace;
       padding: 0;
       outline: none;
+    }
+    .table-spent-box.is-received .table-spent-input {
+      color: var(--green);
+    }
+    
+    /* Dedicated Flow Toggle Button (+ / -) */
+    .btn-type-toggle {
+      width: 26px;
+      height: 22px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      border: 1px solid #283a2d;
+      background: #141f17;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+      font-family: ui-monospace, monospace;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .btn-type-toggle:hover {
+      border-color: var(--green);
+      color: #fff;
+    }
+    .btn-type-toggle.is-spent {
+      background: rgba(239, 114, 114, 0.12);
+      border-color: rgba(239, 114, 114, 0.4);
+      color: #ff9b9b;
+    }
+    .btn-type-toggle.is-received {
+      background: var(--green);
+      color: #07120b;
+      border-color: var(--green);
+      box-shadow: 0 0 8px rgba(69, 212, 131, 0.35);
     }
 
     /* 5. Remaining Waterfall Column */
@@ -616,7 +662,7 @@
                   <th class="col-day">Day</th>
                   <th class="col-cat">Category</th>
                   <th>Description / Note</th>
-                  <th class="col-spent">Spent</th>
+                  <th class="col-spent">Spent (-) / Received (+)</th>
                   <th class="col-rem">Cat. Remaining</th>
                   <th class="col-action"></th>
                 </tr>
@@ -803,10 +849,14 @@
     };
   }
 
+  // Schema check: preserve all past entries, ensuring flowType defaults to 'spent'
   appState.months.forEach(m => {
     m.categories.forEach(c => {
       if (c.locked === undefined) c.locked = (c.name.toLowerCase() === 'savings');
       if (c.budget === undefined) c.budget = (c.pct / 100) * (m.income || 0);
+    });
+    (m.expenses || []).forEach(e => {
+      if (!e.flowType) e.flowType = 'spent';
     });
   });
 
@@ -901,10 +951,14 @@
     maximumFractionDigits: 2
   })}`;
 
-  function getCategorySpent(m, catName) {
+  // Net spent per category: Spent subtracts from category, Received adds back
+  function getCategoryNetSpent(m, catName) {
     return (m.expenses || [])
       .filter(e => e.category === catName)
-      .reduce((sum, e) => sum + (+e.spent || 0), 0);
+      .reduce((sum, e) => {
+        const amt = +e.spent || 0;
+        return e.flowType === 'received' ? sum - amt : sum + amt;
+      }, 0);
   }
 
   function findCat(m, name) {
@@ -1002,23 +1056,30 @@
     const m = currentMonth();
     const inc = +m.income || 0;
     const totalBudgeted = m.categories.reduce((acc, c) => acc + c.budget, 0);
-    const totalSpent = (m.expenses || []).reduce((acc, e) => acc + (+e.spent || 0), 0);
-    const netRemaining = inc - totalSpent;
+    
+    // Net spent calculation across all expenses
+    const totalNetSpent = (m.expenses || []).reduce((acc, e) => {
+      const amt = +e.spent || 0;
+      return e.flowType === 'received' ? acc - amt : acc + amt;
+    }, 0);
+    
+    // Remaining is: Income - Net Spent (Received funds directly increase this number)
+    const netRemaining = inc - totalNetSpent;
 
-    // 1. Monthly Income Card
+    // 1. Monthly Income Card (Preserved strictly as base take-home)
     document.getElementById('statIncome').textContent = fmtMoney(inc);
 
     // 2. Savings Card
     const savCat = findCat(m, 'Savings');
     const savVal = savCat ? savCat.budget : 0;
-    const savSpent = savCat ? getCategorySpent(m, savCat.name) : 0;
+    const savSpent = savCat ? getCategoryNetSpent(m, savCat.name) : 0;
     document.getElementById('statSavings').textContent = fmtMoney(savVal);
-    document.getElementById('statSavingsSub').textContent = `${savCat ? savCat.pct.toFixed(0) : 0}% · Spent ${fmtMoney(savSpent)}`;
+    document.getElementById('statSavingsSub').textContent = `${savCat ? savCat.pct.toFixed(0) : 0}% · Net ${fmtMoney(savSpent)}`;
 
     // 3. Needs Card
     const needsCat = findCat(m, 'Needs');
     const needsVal = needsCat ? needsCat.budget : 0;
-    const needsSpent = needsCat ? getCategorySpent(m, needsCat.name) : 0;
+    const needsSpent = needsCat ? getCategoryNetSpent(m, needsCat.name) : 0;
     const needsLeft = needsVal - needsSpent;
     document.getElementById('statNeeds').textContent = fmtMoney(needsVal);
     const needsSub = document.getElementById('statNeedsSub');
@@ -1028,14 +1089,14 @@
     // 4. Wants Card
     const wantsCat = findCat(m, 'Wants');
     const wantsVal = wantsCat ? wantsCat.budget : 0;
-    const wantsSpent = wantsCat ? getCategorySpent(m, wantsCat.name) : 0;
+    const wantsSpent = wantsCat ? getCategoryNetSpent(m, wantsCat.name) : 0;
     const wantsLeft = wantsVal - wantsSpent;
     document.getElementById('statWants').textContent = fmtMoney(wantsVal);
     const wantsSub = document.getElementById('statWantsSub');
     wantsSub.textContent = `Left: ${fmtMoney(wantsLeft)}`;
     wantsSub.className = wantsLeft < 0 ? 'negative' : '';
 
-    // 5. Remaining (Actual Unspent Cash in Bank)
+    // 5. Remaining (Live cash balance including received funds)
     const remElem = document.getElementById('statRemaining');
     remElem.textContent = fmtMoney(netRemaining);
     remElem.className = netRemaining < 0 ? 'negative' : 'positive';
@@ -1049,7 +1110,7 @@
       ? `Remaining unspent - Locked Savings (${fmtMoney(savLocked)})`
       : `All unspent cash waterfalls here`;
 
-    // Update Slider Row Elements
+    // Update Category Slider Amounts
     m.categories.forEach(c => {
       const amtInput = document.querySelector(`.cat-amt-input[data-id="${c.id}"]`);
       if (amtInput && document.activeElement !== amtInput) {
@@ -1058,8 +1119,8 @@
 
       const metaEl = document.querySelector(`.cat-meta-label[data-id="${c.id}"]`);
       if (metaEl) {
-        const spent = getCategorySpent(m, c.name);
-        metaEl.textContent = `${c.pct.toFixed(1)}% · ${fmtMoney(spent)} spent`;
+        const netSpent = getCategoryNetSpent(m, c.name);
+        metaEl.textContent = `${c.pct.toFixed(1)}% · ${fmtMoney(netSpent)} net spent`;
       }
 
       const rangeInput = document.querySelector(`input[type=range][data-cat="${c.id}"]`);
@@ -1092,7 +1153,7 @@
     document.getElementById('donutChart').style.background = totalBudgeted > 0 ? `conic-gradient(${slices.join(',')})` : '#202a24';
     document.getElementById('chartVal').textContent = fmtMoney(totalBudgeted).replace('.00','');
 
-    // WATERFALL RUNNING BALANCE RECALCULATION WITH STATUS PILLS
+    // WATERFALL RUNNING BALANCE RECALCULATION
     const runningBal = {};
     m.categories.forEach(c => { runningBal[c.name] = c.budget; });
 
@@ -1100,19 +1161,25 @@
       const catSelect = tr.querySelector('select[data-field="category"], select[data-newentry="category"]');
       const spentInput = tr.querySelector('input[data-field="spent"], input[data-newentry="spent"]');
       const remCol = tr.querySelector('.cat-rem-col');
+      const typeBtn = tr.querySelector('[data-toggletype]');
+      const isReceived = typeBtn ? typeBtn.dataset.toggletype === 'received' : false;
 
       if (catSelect && remCol) {
         const cat = catSelect.value;
-        const spent = +(spentInput?.value || 0);
+        const amt = +(spentInput?.value || 0);
 
         if (runningBal[cat] === undefined) {
           const catObj = m.categories.find(c => c.name === cat);
           runningBal[cat] = catObj ? catObj.budget : 0;
         }
 
-        runningBal[cat] -= spent;
-        const currentRem = runningBal[cat];
+        if (isReceived) {
+          runningBal[cat] += amt; // Money received refills the category
+        } else {
+          runningBal[cat] -= amt; // Money spent depletes it
+        }
 
+        const currentRem = runningBal[cat];
         remCol.dataset.catname = cat;
         remCol.innerHTML = `<span class="rem-badge ${currentRem < 0 ? 'negative' : 'positive'}">${fmtMoney(currentRem)}</span>`;
       }
@@ -1149,14 +1216,13 @@
       `<option value="${idx}" ${idx === m.month ? 'selected' : ''}>${name}</option>`
     ).join('');
 
-    // Safe Month Navigation Tabs (no "x" delete buttons on tabs)
+    // Safe Month Navigation Tabs
     document.getElementById('monthNav').innerHTML = appState.months.map((item, idx) => `
       <button class="month-tab ${idx === appState.activeMonthIdx ? 'active' : ''}" data-switch="${idx}">
         ${MONTH_NAMES[item.month]} ${item.year}
       </button>
     `).join('');
 
-    // Hide Delete Month button if only 1 month remains
     const delBtn = document.getElementById('delMonthBtn');
     if (delBtn) {
       delBtn.style.display = appState.months.length > 1 ? 'inline-block' : 'none';
@@ -1164,7 +1230,7 @@
 
     // Categories with Lock Button
     document.getElementById('categoryContainer').innerHTML = m.categories.map((c, i) => {
-      const spent = getCategorySpent(m, c.name);
+      const netSpent = getCategoryNetSpent(m, c.name);
       const col = PALETTE[i % PALETTE.length];
       return `
         <div class="cat-row ${c.locked ? 'is-locked' : ''}">
@@ -1189,8 +1255,8 @@
             <input type="range" min="0" max="100" step="0.1" value="${c.pct.toFixed(1)}" data-cat="${c.id}" 
               ${c.locked ? 'disabled title="Click 🔒 to unlock and adjust slider"' : ''}>
             <div class="cat-meta">
-              <span class="cat-meta-label" data-id="${c.id}">${c.pct.toFixed(1)}% · ${fmtMoney(spent)} spent</span>
-              <span>${c.budget - spent < 0 ? '<span class="negative">Over budget</span>' : (c.locked ? '<span style="color:var(--green)">Locked target</span>' : 'On track')}</span>
+              <span class="cat-meta-label" data-id="${c.id}">${c.pct.toFixed(1)}% · ${fmtMoney(netSpent)} net spent</span>
+              <span>${c.budget - netSpent < 0 ? '<span class="negative">Over budget</span>' : (c.locked ? '<span style="color:var(--green)">Locked target</span>' : 'On track')}</span>
             </div>
           </div>
         </div>
@@ -1209,7 +1275,10 @@
 
     for (let day = 1; day <= totalDays; day++) {
       const dayInstances = expenses.filter(e => +e.day === day);
-      const dayTotal = dayInstances.reduce((sum, item) => sum + (+item.spent || 0), 0);
+      const dayNet = dayInstances.reduce((sum, item) => {
+        const v = +item.spent || 0;
+        return item.flowType === 'received' ? sum - v : sum + v;
+      }, 0);
       const dayFormatted = String(day).padStart(2, '0');
 
       if (!appState.showAllDays && dayInstances.length === 0) continue;
@@ -1232,10 +1301,11 @@
               </select>
             </td>
             <td>
-              <input class="table-note-input" type="text" placeholder="Add expense note..." data-newentry="note" data-day="${day}">
+              <input class="table-note-input" type="text" placeholder="Add note..." data-newentry="note" data-day="${day}">
             </td>
             <td class="col-spent">
-              <div class="table-spent-box">
+              <div class="table-spent-box is-spent">
+                <button type="button" class="btn-type-toggle is-spent" data-toggletype="spent" data-day="${day}" title="Click to toggle: [-] Spent vs [+] Received">-</button>
                 <input class="table-spent-input" type="number" step="0.01" placeholder="0.00" data-newentry="spent" data-day="${day}">
               </div>
             </td>
@@ -1250,13 +1320,20 @@
           totalCount++;
           const isFirst = instIdx === 0;
           const cat = inst.category;
-          const spent = +inst.spent || 0;
+          const amt = +inst.spent || 0;
+          const isRec = inst.flowType === 'received';
 
           if (runningBal[cat] === undefined) {
             const catObj = m.categories.find(c => c.name === cat);
             runningBal[cat] = catObj ? catObj.budget : 0;
           }
-          runningBal[cat] -= spent;
+
+          if (isRec) {
+            runningBal[cat] += amt;
+          } else {
+            runningBal[cat] -= amt;
+          }
+
           const curRem = runningBal[cat];
 
           tableHtml += `
@@ -1266,7 +1343,7 @@
                   ${isFirst ? `
                     <span class="day-chip">${dayFormatted}</span>
                     <button class="btn-add-inst" data-addinst="${day}" title="Add another entry to Day ${day}">+</button>
-                    ${dayInstances.length > 1 ? `<span class="day-total-badge">${fmtMoney(dayTotal)}</span>` : ''}
+                    ${dayInstances.length > 1 ? `<span class="day-total-badge">${dayNet < 0 ? '+' : ''}${fmtMoney(Math.abs(dayNet))}</span>` : ''}
                   ` : `
                     <span class="day-sub-label">↳ #${instIdx + 1}</span>
                   `}
@@ -1281,7 +1358,10 @@
                 <input class="table-note-input" type="text" value="${esc(inst.note || '')}" placeholder="Expense description..." data-txid="${inst.id}" data-field="note">
               </td>
               <td class="col-spent">
-                <div class="table-spent-box">
+                <div class="table-spent-box ${isRec ? 'is-received' : 'is-spent'}">
+                  <button type="button" class="btn-type-toggle ${isRec ? 'is-received' : 'is-spent'}" data-toggletype="${inst.flowType || 'spent'}" data-txid="${inst.id}" title="Click to toggle: [-] Spent vs [+] Received">
+                    ${isRec ? '+' : '-'}
+                  </button>
                   <input class="table-spent-input" type="number" step="0.01" value="${inst.spent ?? ''}" placeholder="0.00" data-txid="${inst.id}" data-field="spent">
                 </div>
               </td>
@@ -1297,7 +1377,7 @@
       }
     }
 
-    document.getElementById('txBody').innerHTML = tableHtml || `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No entries recorded. Enter your Net Income and click + on any day to log expenses.</td></tr>`;
+    document.getElementById('txBody').innerHTML = tableHtml || `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No entries recorded. Enter your Net Income and click + on any day to log expenses or received funds.</td></tr>`;
     document.getElementById('txCount').textContent = `${totalCount} logged`;
 
     updateCalculationsLive();
@@ -1461,19 +1541,50 @@
       const cat = row.querySelector('[data-newentry="category"]').value;
       const note = row.querySelector('[data-newentry="note"]').value;
       const spent = +row.querySelector('[data-newentry="spent"]').value || 0;
+      const typeBtn = row.querySelector('[data-toggletype]');
+      const flowType = typeBtn ? typeBtn.dataset.toggletype : 'spent';
 
       if (spent > 0 || note.trim()) {
         m.expenses = m.expenses || [];
-        m.expenses.push({ id: uid(), day, category: cat, note, spent });
+        m.expenses.push({ id: uid(), day, category: cat, note, spent, flowType });
         persist();
         render();
       }
     }
   });
 
-  // Delegated clicks for Lock Toggle and Buttons
+  // Delegated clicks for Toggle Spent/Received, Lock Toggle and Buttons
   document.addEventListener('click', (e) => {
     const m = currentMonth();
+
+    // Toggle Spent / Received
+    const typeBtn = e.target.closest('[data-toggletype]');
+    if (typeBtn) {
+      const txId = typeBtn.dataset.txid;
+      if (txId) {
+        const tx = (m.expenses || []).find(x => x.id === txId);
+        if (tx) {
+          tx.flowType = (tx.flowType === 'received') ? 'spent' : 'received';
+          persist();
+          render();
+        }
+      } else {
+        // Toggle empty template row before entering amount
+        const curType = typeBtn.dataset.toggletype;
+        const newType = curType === 'received' ? 'spent' : 'received';
+        typeBtn.dataset.toggletype = newType;
+        typeBtn.textContent = newType === 'received' ? '+' : '-';
+        typeBtn.classList.toggle('is-received', newType === 'received');
+        typeBtn.classList.toggle('is-spent', newType === 'spent');
+        const box = typeBtn.closest('.table-spent-box');
+        if (box) {
+          box.classList.toggle('is-received', newType === 'received');
+          box.classList.toggle('is-spent', newType === 'spent');
+        }
+        updateCalculationsLive();
+      }
+      return;
+    }
 
     const lockBtn = e.target.closest('[data-togglelock]');
     if (lockBtn) {
@@ -1504,7 +1615,8 @@
         day,
         category: defaultCat,
         note: '',
-        spent: 0
+        spent: 0,
+        flowType: 'spent'
       });
       persist();
       render();
