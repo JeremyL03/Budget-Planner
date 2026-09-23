@@ -117,6 +117,157 @@
       min-height: 16px;
     }
 
+    /* Left Drawer Styles */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 8, 6, 0.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 9000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .drawer-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 380px;
+      max-width: 90vw;
+      background: #0d1410;
+      border-right: 1px solid var(--line);
+      z-index: 9001;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 12px 0 36px rgba(0, 0, 0, 0.7);
+    }
+    .drawer-panel.is-open {
+      transform: translateX(0);
+    }
+    .drawer-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111a14;
+    }
+    .drawer-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .drawer-close {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .drawer-close:hover {
+      background: #19271e;
+      color: var(--text);
+      border-color: var(--green);
+    }
+    .drawer-controls {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line-subtle);
+      background: var(--panel-alt);
+      display: grid;
+      gap: 8px;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .note-item {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: #101913;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s ease;
+    }
+    .note-item:hover {
+      border-color: #2e4a37;
+    }
+    .note-item-left {
+      min-width: 0;
+      flex: 1;
+    }
+    .note-item-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+    .note-item-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .note-item-cat {
+      background: #16241a;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid #233a2a;
+      font-size: 10px;
+    }
+    .note-item-amt {
+      font-family: ui-monospace, monospace;
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .drawer-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--line);
+      background: #111a14;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .drawer-footer span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .drawer-footer strong {
+      font-family: ui-monospace, monospace;
+      font-size: 15px;
+      color: var(--green);
+    }
+
     header {
       display: flex;
       justify-content: space-between;
@@ -561,6 +712,24 @@
 </head>
 <body>
 
+<!-- Slide-Out Left Drawer for Note Totals -->
+<div id="drawerOverlay" class="drawer-overlay"></div>
+<aside id="drawerPanel" class="drawer-panel">
+  <div class="drawer-header">
+    <h3>📋 Note & Description Totals</h3>
+    <button type="button" id="closeDrawerBtn" class="drawer-close" title="Close">✕</button>
+  </div>
+  <div class="drawer-controls">
+    <label for="drawerCatFilter">Filter Category:</label>
+    <select id="drawerCatFilter" class="btn" style="width:100%;font-size:13px;"></select>
+  </div>
+  <div id="drawerBody" class="drawer-body"></div>
+  <div class="drawer-footer">
+    <span>Total Logged:</span>
+    <strong id="drawerGrandTotal">MYR 0.00</strong>
+  </div>
+</aside>
+
 <!-- Master PIN / Password Lock Overlay -->
 <div id="lockOverlay" class="lock-overlay">
   <div class="lock-card">
@@ -582,6 +751,7 @@
       <p>Live zero-sum dynamic balancing, category locks & running waterfall ledger.</p>
     </div>
     <div class="actions">
+      <button class="btn" id="openDrawerBtn" title="Slide out Note Totals breakdown">📋 Note Totals</button>
       <span class="sync-badge" id="syncStatus">Local Only</span>
       <button class="btn" id="cloudSyncBtn">☁️ Cloud Sync</button>
       <button class="btn" id="lockScreenBtn" title="Lock the application">🔒 Lock</button>
@@ -849,7 +1019,6 @@
     };
   }
 
-  // Schema check: preserve all past entries, ensuring flowType defaults to 'spent'
   appState.months.forEach(m => {
     m.categories.forEach(c => {
       if (c.locked === undefined) c.locked = (c.name.toLowerCase() === 'savings');
@@ -951,7 +1120,6 @@
     maximumFractionDigits: 2
   })}`;
 
-  // Net spent per category: Spent subtracts from category, Received adds back
   function getCategoryNetSpent(m, catName) {
     return (m.expenses || [])
       .filter(e => e.category === catName)
@@ -1057,16 +1225,14 @@
     const inc = +m.income || 0;
     const totalBudgeted = m.categories.reduce((acc, c) => acc + c.budget, 0);
     
-    // Net spent calculation across all expenses
     const totalNetSpent = (m.expenses || []).reduce((acc, e) => {
       const amt = +e.spent || 0;
       return e.flowType === 'received' ? acc - amt : acc + amt;
     }, 0);
     
-    // Remaining is: Income - Net Spent (Received funds directly increase this number)
     const netRemaining = inc - totalNetSpent;
 
-    // 1. Monthly Income Card (Preserved strictly as base take-home)
+    // 1. Monthly Income Card
     document.getElementById('statIncome').textContent = fmtMoney(inc);
 
     // 2. Savings Card
@@ -1096,13 +1262,13 @@
     wantsSub.textContent = `Left: ${fmtMoney(wantsLeft)}`;
     wantsSub.className = wantsLeft < 0 ? 'negative' : '';
 
-    // 5. Remaining (Live cash balance including received funds)
+    // 5. Remaining
     const remElem = document.getElementById('statRemaining');
     remElem.textContent = fmtMoney(netRemaining);
     remElem.className = netRemaining < 0 ? 'negative' : 'positive';
     document.getElementById('statRemainingSub').textContent = inc > 0 ? 'Net unspent cash' : 'Enter income to start';
 
-    // 6. Goals Pot: All unspent cash waterfalls here
+    // 6. Goals Pot
     const savLocked = Math.max(0, savVal - savSpent);
     const goalsTotal = Math.max(0, netRemaining - savLocked);
     document.getElementById('statGoals').textContent = fmtMoney(goalsTotal);
@@ -1110,7 +1276,7 @@
       ? `Remaining unspent - Locked Savings (${fmtMoney(savLocked)})`
       : `All unspent cash waterfalls here`;
 
-    // Update Category Slider Amounts
+    // Category Slider Sync
     m.categories.forEach(c => {
       const amtInput = document.querySelector(`.cat-amt-input[data-id="${c.id}"]`);
       if (amtInput && document.activeElement !== amtInput) {
@@ -1129,7 +1295,6 @@
       }
     });
 
-    // Allocation Status Indicator
     const totalAllocPct = m.categories.reduce((acc, c) => acc + c.pct, 0);
     const lockedCount = m.categories.filter(c => c.locked).length;
     const statusEl = document.getElementById('allocStatus');
@@ -1142,7 +1307,6 @@
       statusEl.className = 'small';
     }
 
-    // Update Donut Chart
     let cursor = 0;
     const slices = m.categories.map((c, i) => {
       const share = totalBudgeted > 0 ? (c.budget / totalBudgeted) * 100 : 0;
@@ -1153,7 +1317,7 @@
     document.getElementById('donutChart').style.background = totalBudgeted > 0 ? `conic-gradient(${slices.join(',')})` : '#202a24';
     document.getElementById('chartVal').textContent = fmtMoney(totalBudgeted).replace('.00','');
 
-    // WATERFALL RUNNING BALANCE RECALCULATION
+    // Running balance recalculation
     const runningBal = {};
     m.categories.forEach(c => { runningBal[c.name] = c.budget; });
 
@@ -1174,9 +1338,9 @@
         }
 
         if (isReceived) {
-          runningBal[cat] += amt; // Money received refills the category
+          runningBal[cat] += amt;
         } else {
-          runningBal[cat] -= amt; // Money spent depletes it
+          runningBal[cat] -= amt;
         }
 
         const currentRem = runningBal[cat];
@@ -1185,7 +1349,6 @@
       }
     });
 
-    // Update Legend
     document.getElementById('legendList').innerHTML = m.categories.map((c, i) => `
       <div class="legend-row">
         <div class="legend-left">
@@ -1195,7 +1358,113 @@
         <span><b>${fmtMoney(c.budget)}</b> <small class="small">(${c.pct.toFixed(1)}%)</small></span>
       </div>
     `).join('');
+
+    renderNoteTotalsDrawer();
   }
+
+  // --- SLIDE-OUT DRAWER NOTE TOTALS CALCULATOR ---
+  let drawerSelectedCategory = 'ALL';
+
+  function renderNoteTotalsDrawer() {
+    const m = currentMonth();
+    const filterSelect = document.getElementById('drawerCatFilter');
+    
+    // Populate or sync category options inside the drawer dropdown
+    const currentCats = m.categories.map(c => c.name);
+    let optionsHtml = `<option value="ALL" ${drawerSelectedCategory === 'ALL' ? 'selected' : ''}>★ All Categories (Combined)</option>`;
+    currentCats.forEach(cat => {
+      optionsHtml += `<option value="${esc(cat)}" ${drawerSelectedCategory === cat ? 'selected' : ''}>${esc(cat)}</option>`;
+    });
+    filterSelect.innerHTML = optionsHtml;
+
+    // Filter relevant expenses
+    const rawExpenses = m.expenses || [];
+    const filtered = drawerSelectedCategory === 'ALL' 
+      ? rawExpenses 
+      : rawExpenses.filter(e => (e.category || '').toLowerCase() === drawerSelectedCategory.toLowerCase());
+
+    // Aggregate by Note/Description (case-insensitive trim)
+    const aggregates = {};
+    let grandNetTotal = 0;
+
+    filtered.forEach(e => {
+      const rawNote = (e.note || '').trim();
+      const noteKey = rawNote ? rawNote.toLowerCase() : '(unnamed note)';
+      const amt = +e.spent || 0;
+      const net = (e.flowType === 'received') ? -amt : amt;
+
+      if (!aggregates[noteKey]) {
+        aggregates[noteKey] = {
+          displayName: rawNote || 'Untitled / No description',
+          category: e.category || 'Wants',
+          total: 0,
+          count: 0
+        };
+      }
+
+      aggregates[noteKey].total += net;
+      aggregates[noteKey].count += 1;
+      grandNetTotal += net;
+    });
+
+    const sortedList = Object.values(aggregates).sort((a, b) => b.total - a.total);
+    const drawerBody = document.getElementById('drawerBody');
+
+    if (sortedList.length === 0) {
+      drawerBody.innerHTML = `
+        <div style="text-align:center;padding:32px 10px;color:var(--muted)">
+          <div style="font-size:24px;margin-bottom:8px">📝</div>
+          No description notes logged for this view yet.
+        </div>`;
+    } else {
+      drawerBody.innerHTML = sortedList.map(item => `
+        <div class="note-item">
+          <div class="note-item-left">
+            <span class="note-item-title" title="${esc(item.displayName)}">${esc(item.displayName)}</span>
+            <div class="note-item-meta">
+              <span class="note-item-cat">${esc(item.category)}</span>
+              <span>${item.count} ${item.count === 1 ? 'entry' : 'entries'}</span>
+            </div>
+          </div>
+          <span class="note-item-amt ${item.total < 0 ? 'positive' : ''}">
+            ${item.total < 0 ? '+' : ''}${fmtMoney(Math.abs(item.total))}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('drawerGrandTotal').textContent = fmtMoney(grandNetTotal);
+  }
+
+  // Slide Drawer Toggle Controls
+  const drawerOverlay = document.getElementById('drawerOverlay');
+  const drawerPanel = document.getElementById('drawerPanel');
+
+  function openDrawer() {
+    renderNoteTotalsDrawer();
+    drawerOverlay.classList.add('is-open');
+    drawerPanel.classList.add('is-open');
+  }
+
+  function closeDrawer() {
+    drawerOverlay.classList.remove('is-open');
+    drawerPanel.classList.remove('is-open');
+  }
+
+  document.getElementById('openDrawerBtn').onclick = openDrawer;
+  document.getElementById('closeDrawerBtn').onclick = closeDrawer;
+  drawerOverlay.onclick = closeDrawer;
+
+  document.getElementById('drawerCatFilter').onchange = (e) => {
+    drawerSelectedCategory = e.target.value;
+    renderNoteTotalsDrawer();
+  };
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawerPanel.classList.contains('is-open')) {
+      closeDrawer();
+    }
+  });
 
   function render() {
     const m = currentMonth();
@@ -1569,7 +1838,6 @@
           render();
         }
       } else {
-        // Toggle empty template row before entering amount
         const curType = typeBtn.dataset.toggletype;
         const newType = curType === 'received' ? 'spent' : 'received';
         typeBtn.dataset.toggletype = newType;
