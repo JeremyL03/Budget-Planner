@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-select=none">
+  <title>Vault Glance</title>
+
+  <!-- iOS PWA Standalone Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Vault Glance">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <style>
+    :root {
+      --bg: #090d0b;
+      --card-bg: #111a14;
+      --border: #233529;
+      --text: #edf5ef;
+      --muted: #91a096;
+      --green: #45d483;
+      --accent: #5eb9e6;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0%, #173d28, #090d0b 70%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      min-height: 100vh;
+      padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Top Bar */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #142319;
+      color: var(--green);
+      border: 1px solid var(--border);
+    }
+
+    /* Month Selector Pill Bar */
+    .months-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .months-bar::-webkit-scrollbar { display: none; }
+
+    .month-pill {
+      background: #121d16;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .month-pill.active {
+      background: #1c3d28;
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    /* Highlight Card (Bank Account & Net Unspent) */
+    .hero-card {
+      background: linear-gradient(145deg, #13271c, #0e1c14);
+      border: 1px solid rgba(69, 212, 131, 0.4);
+      border-radius: 18px;
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .hero-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .hero-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+    }
+
+    .hero-val {
+      font-size: 28px;
+      font-weight: 800;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      color: var(--green);
+      line-height: 1;
+      margin-top: 6px;
+    }
+
+    /* Grid of Main Numbers */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat-card.full-width {
+      grid-column: span 2;
+    }
+
+    .stat-title {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-num {
+      font-size: 20px;
+      font-weight: 800;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      margin-top: 8px;
+      color: #fff;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Edit Button for Bank Amount */
+    .btn-edit {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .footer-actions {
+      margin-top: auto;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding-top: 10px;
+    }
+
+    .btn-action {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">Vault Glance</div>
+    <div class="status-badge" id="syncStatus">Pulling...</div>
+  </header>
+
+  <!-- Month navigation -->
+  <div class="months-bar" id="monthsBar"></div>
+
+  <!-- Hero: Bank Account Savings + Net Remaining -->
+  <div class="hero-card">
+    <div>
+      <div class="hero-row">
+        <span class="hero-label">Bank Savings (Manual)</span>
+        <button class="btn-edit" id="editBankBtn" title="Set bank balance">✏️</button>
+      </div>
+      <div class="hero-val" id="valBank">MYR 0.00</div>
+    </div>
+
+    <div style="border-top: 1px dashed var(--border); padding-top: 12px;">
+      <div class="hero-row">
+        <span class="hero-label">Month Net Remaining</span>
+      </div>
+      <div class="hero-val" style="font-size: 22px; color: #fff;" id="valRemaining">MYR 0.00</div>
+    </div>
+  </div>
+
+  <!-- 4 Primary Numbers Display -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-title">Savings Target</span>
+      <div class="stat-num" id="valSavings">MYR 0.00</div>
+      <span class="stat-sub" id="subSavings">Locked pool</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-title">Goals (Surplus)</span>
+      <div class="stat-num" style="color:var(--green)" id="valGoals">MYR 0.00</div>
+      <span class="stat-sub">Waterfall overflow</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-title">Needs Left</span>
+      <div class="stat-num" id="valNeeds">MYR 0.00</div>
+      <span class="stat-sub" id="subNeeds">Budget - Spent</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-title">Wants Left</span>
+      <div class="stat-num" id="valWants">MYR 0.00</div>
+      <span class="stat-sub" id="subWants">Budget - Spent</span>
+    </div>
+
+    <div class="stat-card full-width">
+      <div class="hero-row">
+        <span class="stat-title">Total Liquid Position</span>
+        <span class="stat-sub">Bank + Month Remaining</span>
+      </div>
+      <div class="stat-num" style="color:var(--accent); font-size:22px;" id="valLiquid">MYR 0.00</div>
+    </div>
+  </div>
+
+  <div class="footer-actions">
+    <button class="btn-action" id="refreshBtn">↻ Refresh Data</button>
+    <button class="btn-action" id="configBtn">⚙️ Cloud Key</button>
+  </div>
+
+<script>
+(() => {
+  const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let appData = null;
+  let activeMonthIdx = 0;
+
+  const fmtMoney = (val, cur = 'MYR') => `${cur} ${(+val || 0).toLocaleString('en-MY', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`;
+
+  function getCategoryNet(m, catName) {
+    const cat = (m.categories || []).find(c => c.name.toLowerCase() === catName.toLowerCase());
+    const budget = cat ? (cat.budget || 0) : 0;
+    const spent = (m.expenses || [])
+      .filter(e => (e.category || '').toLowerCase() === catName.toLowerCase())
+      .reduce((sum, e) => {
+        const amt = +e.spent || 0;
+        return e.flowType === 'received' ? sum - amt : sum + amt;
+      }, 0);
+    return { budget, spent, left: budget - spent };
+  }
+
+  async function pullGist() {
+    const gistId = localStorage.getItem('budget_gist_id');
+    const token = localStorage.getItem('budget_gh_token');
+    const badge = document.getElementById('syncStatus');
+
+    if (!gistId || !token) {
+      badge.textContent = 'Set Token';
+      badge.style.color = '#ef7272';
+      return;
+    }
+
+    badge.textContent = 'Syncing...';
+    try {
+      const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (!res.ok) throw new Error('Fetch failed');
+      const data = await res.json();
+      const raw = data.files['budget_data.json'].content;
+      appData = JSON.parse(raw);
+      activeMonthIdx = appData.activeMonthIdx || 0;
+
+      badge.textContent = '✓ Live';
+      badge.style.color = 'var(--green)';
+      render();
+    } catch (e) {
+      badge.textContent = 'Offline';
+      badge.style.color = '#ef7272';
+    }
+  }
+
+  function render() {
+    if (!appData || !appData.months || !appData.months[activeMonthIdx]) return;
+
+    const m = appData.months[activeMonthIdx];
+    const cur = appData.currency || 'MYR';
+
+    // Months bar
+    document.getElementById('monthsBar').innerHTML = appData.months.map((item, idx) => `
+      <button class="month-pill ${idx === activeMonthIdx ? 'active' : ''}" data-idx="${idx}">
+        ${MONTH_NAMES[item.month]} ${item.year}
+      </button>
+    `).join('');
+
+    // Manual Bank Account Savings (saved in localStorage)
+    const bankVal = +(localStorage.getItem('user_bank_savings') || 0);
+    document.getElementById('valBank').textContent = fmtMoney(bankVal, cur);
+
+    // Net remaining for the month
+    const inc = +m.income || 0;
+    const totalNetSpent = (m.expenses || []).reduce((sum, e) => {
+      const amt = +e.spent || 0;
+      return e.flowType === 'received' ? sum - amt : sum + amt;
+    }, 0);
+    const netRem = inc - totalNetSpent;
+
+    document.getElementById('valRemaining').textContent = fmtMoney(netRem, cur);
+
+    // Primary cards
+    const sav = getCategoryNet(m, 'Savings');
+    const needs = getCategoryNet(m, 'Needs');
+    const wants = getCategoryNet(m, 'Wants');
+
+    document.getElementById('valSavings').textContent = fmtMoney(sav.budget, cur);
+    document.getElementById('subSavings').textContent = `Spent: ${fmtMoney(sav.spent, cur)}`;
+
+    document.getElementById('valNeeds').textContent = fmtMoney(needs.left, cur);
+    document.getElementById('subNeeds').textContent = `Budget: ${fmtMoney(needs.budget, cur)}`;
+
+    document.getElementById('valWants').textContent = fmtMoney(wants.left, cur);
+    document.getElementById('subWants').textContent = `Budget: ${fmtMoney(wants.budget, cur)}`;
+
+    // Goals calculation
+    const savLocked = Math.max(0, sav.budget - sav.spent);
+    const goalsTotal = Math.max(0, netRem - savLocked);
+    document.getElementById('valGoals').textContent = fmtMoney(goalsTotal, cur);
+
+    // Total Liquid Position
+    document.getElementById('valLiquid').textContent = fmtMoney(bankVal + netRem, cur);
+  }
+
+  // Month Switch
+  document.getElementById('monthsBar').onclick = (e) => {
+    if (e.target.dataset.idx !== undefined) {
+      activeMonthIdx = +e.target.dataset.idx;
+      render();
+    }
+  };
+
+  // Set Manual Bank Balance
+  document.getElementById('editBankBtn').onclick = () => {
+    const curVal = localStorage.getItem('user_bank_savings') || '0';
+    const input = prompt('Enter your actual Bank Account Savings amount:', curVal);
+    if (input !== null && !isNaN(+input)) {
+      localStorage.setItem('user_bank_savings', input.trim());
+      render();
+    }
+  };
+
+  // Setup GitHub Token & Gist ID
+  document.getElementById('configBtn').onclick = () => {
+    const gId = prompt('Paste your Secret Gist ID:', localStorage.getItem('budget_gist_id') || '');
+    if (!gId) return;
+    const tok = prompt('Paste your GitHub Personal Access Token:', localStorage.getItem('budget_gh_token') || '');
+    if (!tok) return;
+
+    localStorage.setItem('budget_gist_id', gId.trim());
+    localStorage.setItem('budget_gh_token', tok.trim());
+    pullGist();
+  };
+
+  document.getElementById('refreshBtn').onclick = pullGist;
+
+  // Auto-refresh when opening app from background
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') pullGist();
+  });
+
+  pullGist();
+})();
+</script>
+</body>
+</html>
