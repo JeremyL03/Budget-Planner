@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Monthly Budget Planner</title>
+  <title>Monthly Budget Planner v8</title>
   <style>
     :root {
       --bg: #090d0b;
@@ -14,10 +14,10 @@
       --text: #edf5ef;
       --muted: #8e9f94;
       --green: #45d483;
-      --green-glow: rgba(69, 212, 131, 0.12);
+      --green-glow: rgba(69, 212, 131, 0.14);
       --green-border: rgba(69, 212, 131, 0.35);
       --danger: #ef7272;
-      --danger-glow: rgba(239, 114, 114, 0.12);
+      --danger-glow: rgba(239, 114, 114, 0.14);
       --danger-border: rgba(239, 114, 114, 0.35);
       --accent: #5eb9e6;
     }
@@ -30,7 +30,7 @@
       min-height: 100vh;
     }
     .app {
-      max-width: 1400px;
+      max-width: 1420px;
       margin: auto;
       padding: 24px;
       transition: filter 0.25s ease;
@@ -94,7 +94,7 @@
     .lock-btn:hover { background: #53e090; }
     .lock-msg { margin-top: 10px; font-size: 12px; color: var(--danger); min-height: 16px; }
 
-    /* Note Drawer */
+    /* Slide-out Drawer for Notes */
     .drawer-overlay {
       position: fixed;
       inset: 0;
@@ -110,7 +110,7 @@
     .drawer-panel {
       position: fixed;
       top: 0; left: 0; bottom: 0;
-      width: 400px;
+      width: 390px;
       max-width: 90vw;
       background: #0d1410;
       border-right: 1px solid var(--line);
@@ -123,14 +123,14 @@
     }
     .drawer-panel.is-open { transform: translateX(0); }
     .drawer-header {
-      padding: 18px 20px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--line);
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: #111a14;
     }
-    .drawer-header h3 { margin: 0; font-size: 16px; font-weight: 800; }
+    .drawer-header h3 { margin: 0; font-size: 15px; font-weight: 800; }
     .drawer-close {
       background: transparent;
       border: 1px solid var(--line);
@@ -173,7 +173,7 @@
       align-items: center;
     }
 
-    /* Layout Elements */
+    /* Core UI */
     header {
       display: flex;
       justify-content: space-between;
@@ -373,12 +373,12 @@
     .table-note-input:hover { border-color: #1f2b23; }
     .table-note-input:focus { border-color: var(--line); background: #0e1612; outline: none; }
 
-    td.col-spent { width: 155px; text-align: right; }
+    td.col-spent { width: 165px; text-align: right; }
     .table-spent-box {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 5px;
       background: #090e0b;
       border: 1px solid #1c2820;
       border-radius: 6px;
@@ -391,7 +391,7 @@
       background: var(--green-glow);
     }
     .table-spent-box.is-spent {
-      border-color: rgba(239, 114, 114, 0.2);
+      border-color: rgba(239, 114, 114, 0.25);
     }
     .table-spent-input {
       width: 75px;
@@ -407,7 +407,7 @@
     .table-spent-box.is-received .table-spent-input { color: var(--green); }
 
     .btn-type-toggle {
-      width: 24px;
+      width: 26px;
       height: 22px;
       padding: 0;
       display: inline-flex;
@@ -417,7 +417,7 @@
       border: 1px solid #283a2d;
       background: #141f17;
       font-weight: 800;
-      font-size: 12px;
+      font-size: 13px;
       font-family: ui-monospace, monospace;
       cursor: pointer;
       user-select: none;
@@ -457,7 +457,7 @@
     }
     td.col-action { width: 34px; text-align: center; }
 
-    /* Categories Panel */
+    /* Category Targets */
     .category-list { display: grid; gap: 8px; }
     .cat-row {
       padding: 10px 12px;
@@ -486,7 +486,7 @@
     .cat-input-mini:disabled { background: #0d1410; color: #63756a; border-color: #17241c; cursor: not-allowed; }
     .cat-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
 
-    /* Chart & Legend */
+    /* Allocation Visuals */
     .chart-wrap { display: flex; justify-content: center; padding: 10px 0 14px; }
     .chart {
       width: 170px; height: 170px; border-radius: 50%;
@@ -552,7 +552,7 @@
 <div class="app is-blurred" id="appContent">
   <header>
     <div>
-      <h1>Monthly Budget Planner</h1>
+      <h1>Monthly Budget Planner <span style="font-size:14px;color:var(--green);font-weight:600;margin-left:8px;">v8 Clean</span></h1>
       <p>Deterministic zero-sum balancing, category pools & waterfall ledger.</p>
     </div>
     <div class="actions">
