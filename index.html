@@ -2,35 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Monthly Budget Planner</title>
   <style>
     :root {
       --bg: #090d0b;
-      --panel: #101713;
+      --panel: #111814;
       --panel-alt: #0b110e;
-      --line: #26332b;
-      --line-subtle: rgba(38, 51, 43, 0.55);
+      --line: #233329;
+      --line-subtle: rgba(35, 51, 41, 0.6);
       --text: #edf5ef;
-      --muted: #91a096;
+      --muted: #8e9f94;
       --green: #45d483;
       --green-glow: rgba(69, 212, 131, 0.12);
-      --green-border: rgba(69, 212, 131, 0.28);
+      --green-border: rgba(69, 212, 131, 0.35);
       --danger: #ef7272;
-      --danger-glow: rgba(239, 114, 114, 0.14);
-      --danger-border: rgba(239, 114, 114, 0.3);
+      --danger-glow: rgba(239, 114, 114, 0.12);
+      --danger-border: rgba(239, 114, 114, 0.35);
       --accent: #5eb9e6;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: radial-gradient(circle at 85% -10%, #173d28, #0b100d 45%);
+      background: radial-gradient(circle at 85% -10%, #153924, #080d0a 50%);
       color: var(--text);
       font: 14px system-ui, -apple-system, sans-serif;
       min-height: 100vh;
     }
     .app {
-      max-width: 1440px;
+      max-width: 1400px;
       margin: auto;
       padding: 24px;
       transition: filter 0.25s ease;
@@ -55,7 +55,7 @@
       padding: 20px;
     }
     .lock-card {
-      background: #101713;
+      background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 32px 28px;
@@ -64,22 +64,8 @@
       text-align: center;
       box-shadow: 0 16px 36px rgba(0,0,0,0.6);
     }
-    .lock-icon {
-      font-size: 38px;
-      margin-bottom: 12px;
-      display: inline-block;
-    }
-    .lock-card h2 {
-      margin: 0 0 6px;
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .lock-card p {
-      margin: 0 0 20px;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .lock-card h2 { margin: 10px 0 6px; font-size: 20px; font-weight: 800; }
+    .lock-card p { margin: 0 0 20px; color: var(--muted); font-size: 13px; }
     .lock-input {
       width: 100%;
       padding: 12px;
@@ -93,9 +79,7 @@
       margin-bottom: 14px;
       outline: none;
     }
-    .lock-input:focus {
-      border-color: var(--green);
-    }
+    .lock-input:focus { border-color: var(--green); }
     .lock-btn {
       width: 100%;
       padding: 12px;
@@ -107,21 +91,14 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .lock-btn:hover {
-      background: #53e090;
-    }
-    .lock-msg {
-      margin-top: 12px;
-      font-size: 12px;
-      color: var(--danger);
-      min-height: 16px;
-    }
+    .lock-btn:hover { background: #53e090; }
+    .lock-msg { margin-top: 10px; font-size: 12px; color: var(--danger); min-height: 16px; }
 
-    /* Left Drawer Styles */
+    /* Note Drawer */
     .drawer-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(4, 8, 6, 0.7);
+      background: rgba(4, 8, 6, 0.75);
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
       z-index: 9000;
@@ -129,16 +106,11 @@
       pointer-events: none;
       transition: opacity 0.25s ease;
     }
-    .drawer-overlay.is-open {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .drawer-overlay.is-open { opacity: 1; pointer-events: auto; }
     .drawer-panel {
       position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: 380px;
+      top: 0; left: 0; bottom: 0;
+      width: 400px;
       max-width: 90vw;
       background: #0d1410;
       border-right: 1px solid var(--line);
@@ -146,12 +118,10 @@
       display: flex;
       flex-direction: column;
       transform: translateX(-100%);
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 12px 0 36px rgba(0, 0, 0, 0.7);
     }
-    .drawer-panel.is-open {
-      transform: translateX(0);
-    }
+    .drawer-panel.is-open { transform: translateX(0); }
     .drawer-header {
       padding: 18px 20px;
       border-bottom: 1px solid var(--line);
@@ -160,47 +130,26 @@
       align-items: center;
       background: #111a14;
     }
-    .drawer-header h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .drawer-header h3 { margin: 0; font-size: 16px; font-weight: 800; }
     .drawer-close {
       background: transparent;
       border: 1px solid var(--line);
       color: var(--muted);
       border-radius: 6px;
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
       cursor: pointer;
     }
-    .drawer-close:hover {
-      background: #19271e;
-      color: var(--text);
-      border-color: var(--green);
-    }
+    .drawer-close:hover { border-color: var(--green); color: #fff; }
     .drawer-controls {
-      padding: 14px 20px;
+      padding: 12px 20px;
       border-bottom: 1px solid var(--line-subtle);
       background: var(--panel-alt);
-      display: grid;
-      gap: 8px;
     }
-    .drawer-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 20px;
-      display: grid;
-      gap: 10px;
-      align-content: start;
-    }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; display: grid; gap: 8px; align-content: start; }
     .note-item {
       padding: 10px 12px;
       border: 1px solid var(--line);
@@ -210,46 +159,11 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      transition: border-color 0.15s ease;
     }
-    .note-item:hover {
-      border-color: #2e4a37;
-    }
-    .note-item-left {
-      min-width: 0;
-      flex: 1;
-    }
-    .note-item-title {
-      font-weight: 700;
-      font-size: 13px;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
-    }
-    .note-item-meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-    .note-item-cat {
-      background: #16241a;
-      padding: 1px 6px;
-      border-radius: 4px;
-      border: 1px solid #233a2a;
-      font-size: 10px;
-    }
-    .note-item-amt {
-      font-family: ui-monospace, monospace;
-      font-weight: 800;
-      font-size: 13px;
-      white-space: nowrap;
-      text-align: right;
-    }
+    .note-item-title { font-weight: 700; font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+    .note-item-meta { font-size: 11px; color: var(--muted); margin-top: 2px; display: flex; gap: 6px; align-items: center; }
+    .note-item-cat { background: #16241a; padding: 1px 6px; border-radius: 4px; border: 1px solid #233a2a; font-size: 10px; }
+    .note-item-amt { font-family: ui-monospace, monospace; font-weight: 800; font-size: 13px; white-space: nowrap; }
     .drawer-footer {
       padding: 14px 20px;
       border-top: 1px solid var(--line);
@@ -258,25 +172,17 @@
       justify-content: space-between;
       align-items: center;
     }
-    .drawer-footer span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .drawer-footer strong {
-      font-family: ui-monospace, monospace;
-      font-size: 15px;
-      color: var(--green);
-    }
 
+    /* Layout Elements */
     header {
       display: flex;
       justify-content: space-between;
-      gap: 20px;
+      gap: 16px;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       flex-wrap: wrap;
     }
-    h1 { margin: 0 0 4px; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    h1 { margin: 0 0 4px; font-size: 24px; font-weight: 800; }
     p { margin: 0; color: var(--muted); }
     button, input, select { font: inherit; }
     button { cursor: pointer; }
@@ -291,9 +197,8 @@
     .btn.danger { color: #ff9b9b; background: transparent; border-color: transparent; }
     .btn.danger:hover { background: #381a1a; }
     .btn-sm { padding: 4px 8px; font-size: 12px; border-radius: 6px; }
-    
     .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    
+
     .sync-badge {
       font-size: 12px;
       padding: 4px 10px;
@@ -316,13 +221,10 @@
       display: inline-flex;
       align-items: center;
       cursor: pointer;
-      transition: all 0.15s ease;
       font-weight: 600;
+      transition: all 0.15s ease;
     }
-    .month-tab:hover {
-      background: #152219;
-      color: var(--text);
-    }
+    .month-tab:hover { background: #152219; color: var(--text); }
     .month-tab.active {
       background: #173522;
       color: #b9ffd5;
@@ -331,7 +233,7 @@
       box-shadow: 0 0 12px rgba(69, 212, 131, 0.1);
     }
 
-    /* 6-box summary grid */
+    /* 6 Stats Row */
     .summary {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -343,17 +245,17 @@
       border: 1px solid var(--line);
       border-radius: 12px;
     }
-    .stat { padding: 13px 14px; position: relative; overflow: hidden; }
+    .stat { padding: 12px 14px; position: relative; }
     .stat span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .stat strong { font-size: 18px; display: block; }
+    .stat strong { font-size: 18px; display: block; font-family: ui-monospace, monospace; }
     .stat small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
     .positive { color: var(--green); }
     .negative { color: var(--danger); }
 
-    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 20px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; }
     .card { overflow: hidden; }
     .card-head {
-      padding: 14px 18px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--line);
       display: flex;
       justify-content: space-between;
@@ -361,36 +263,32 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-    .card-body { padding: 16px 18px; }
-    
+    .card-body { padding: 16px; }
+
     .toolbar {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       flex-wrap: wrap;
       background: var(--panel-alt);
-      padding: 12px;
+      padding: 10px 14px;
       border-radius: 10px;
       border: 1px solid var(--line);
       align-items: center;
     }
     .field-group { display: flex; align-items: center; gap: 8px; }
     label, .small { color: var(--muted); font-size: 12px; }
-    .money-input { width: 130px; text-align: right; font-weight: 700; color: var(--green); }
+    .money-input { width: 140px; text-align: right; font-weight: 700; color: var(--green); font-family: ui-monospace, monospace; }
 
-    /* Structured High-Clarity Table Design */
+    /* Clean Ledger Table */
     .table-container {
       border: 1px solid var(--line);
       border-radius: 10px;
       overflow: hidden;
       background: #0c120f;
     }
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-    }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; }
     thead th {
       background: #121a15;
       color: var(--muted);
@@ -398,12 +296,11 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      padding: 11px 12px;
+      padding: 10px 12px;
       border-bottom: 1px solid var(--line);
       border-right: 1px solid var(--line-subtle);
     }
     thead th:last-child { border-right: none; }
-
     tbody td {
       padding: 6px 10px;
       border-bottom: 1px solid #141c17;
@@ -411,15 +308,11 @@
       vertical-align: middle;
     }
     tbody td:last-child { border-right: none; }
-
     tr.day-boundary td { border-top: 2px solid #23352a; }
-    tr.is-subrow td {
-      background: rgba(255, 255, 255, 0.015);
-      border-top: 1px dashed rgba(38, 51, 43, 0.5);
-    }
+    tr.is-subrow td { background: rgba(255, 255, 255, 0.015); border-top: 1px dashed rgba(35, 51, 41, 0.5); }
     tr:hover td { background: rgba(69, 212, 131, 0.02); }
 
-    /* 1. Day Column */
+    /* Columns */
     td.col-day { background: #090e0b; width: 145px; }
     .day-cell { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
     .day-chip {
@@ -437,51 +330,37 @@
       font-family: ui-monospace, monospace;
     }
     .btn-add-inst {
-      width: 22px;
-      height: 22px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 5px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--green);
-      font-weight: 800;
-      font-size: 13px;
+      width: 22px; height: 22px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 5px; border: 1px solid var(--line);
+      background: var(--panel); color: var(--green);
+      font-weight: 800; font-size: 13px;
     }
     .btn-add-inst:hover { background: #193424; border-color: var(--green); }
     .day-sub-label { color: var(--muted); font-size: 11px; font-family: ui-monospace, monospace; padding-left: 6px; }
     .day-total-badge {
-      font-size: 10px;
-      color: var(--muted);
-      background: #142119;
-      padding: 2px 6px;
-      border-radius: 4px;
-      border: 1px solid #203327;
-      margin-left: auto;
-      font-family: ui-monospace, monospace;
+      font-size: 10px; color: var(--muted); background: #142119;
+      padding: 2px 6px; border-radius: 4px; border: 1px solid #203327;
+      margin-left: auto; font-family: ui-monospace, monospace;
     }
 
-    /* 2. Category Dropdown Column */
-    td.col-cat { width: 165px; }
+    td.col-cat { width: 160px; }
     .table-select {
       width: 100%;
-      background: #0c1611 url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2391a096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 9px center;
-      background-size: 11px;
+      background: #0c1611 url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2391a096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 8px center;
+      background-size: 10px;
       appearance: none;
       -webkit-appearance: none;
       border: 1px solid #1f2c24;
-      border-radius: 7px;
-      padding: 6px 28px 6px 10px;
+      border-radius: 6px;
+      padding: 6px 24px 6px 8px;
       font-size: 12px;
       font-weight: 600;
       color: var(--text);
       cursor: pointer;
     }
-    .table-select:focus { border-color: var(--green); background-color: #101d16; outline: none; }
+    .table-select:focus { border-color: var(--green); outline: none; }
 
-    /* 3. Description Note Column */
     .table-note-input {
       width: 100%;
       background: transparent;
@@ -494,13 +373,12 @@
     .table-note-input:hover { border-color: #1f2b23; }
     .table-note-input:focus { border-color: var(--line); background: #0e1612; outline: none; }
 
-    /* 4. Spent / Received Flow Column */
-    td.col-spent { width: 160px; text-align: right; }
+    td.col-spent { width: 155px; text-align: right; }
     .table-spent-box {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 5px;
+      gap: 4px;
       background: #090e0b;
       border: 1px solid #1c2820;
       border-radius: 6px;
@@ -509,11 +387,11 @@
     }
     .table-spent-box:focus-within { border-color: var(--green); background: #0d1611; }
     .table-spent-box.is-received {
-      border-color: rgba(69, 212, 131, 0.45);
-      background: rgba(69, 212, 131, 0.09);
+      border-color: var(--green-border);
+      background: var(--green-glow);
     }
     .table-spent-box.is-spent {
-      border-color: rgba(239, 114, 114, 0.25);
+      border-color: rgba(239, 114, 114, 0.2);
     }
     .table-spent-input {
       width: 75px;
@@ -526,57 +404,46 @@
       padding: 0;
       outline: none;
     }
-    .table-spent-box.is-received .table-spent-input {
-      color: var(--green);
-    }
-    
-    /* Dedicated Flow Toggle Button (+ / -) */
+    .table-spent-box.is-received .table-spent-input { color: var(--green); }
+
     .btn-type-toggle {
-      width: 26px;
+      width: 24px;
       height: 22px;
       padding: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 5px;
+      border-radius: 4px;
       border: 1px solid #283a2d;
       background: #141f17;
-      color: var(--muted);
       font-weight: 800;
-      font-size: 13px;
+      font-size: 12px;
       font-family: ui-monospace, monospace;
       cursor: pointer;
       user-select: none;
       transition: all 0.15s ease;
     }
-    .btn-type-toggle:hover {
-      border-color: var(--green);
-      color: #fff;
-    }
     .btn-type-toggle.is-spent {
-      background: rgba(239, 114, 114, 0.12);
-      border-color: rgba(239, 114, 114, 0.4);
+      background: var(--danger-glow);
+      border-color: var(--danger-border);
       color: #ff9b9b;
     }
     .btn-type-toggle.is-received {
       background: var(--green);
-      color: #07120b;
       border-color: var(--green);
-      box-shadow: 0 0 8px rgba(69, 212, 131, 0.35);
+      color: #07120b;
     }
 
-    /* 5. Remaining Waterfall Column */
-    td.col-rem { width: 140px; text-align: right; }
+    td.col-rem { width: 135px; text-align: right; }
     .rem-badge {
       display: inline-flex;
       align-items: center;
       justify-content: flex-end;
-      padding: 4px 10px;
+      padding: 4px 8px;
       border-radius: 6px;
       font-weight: 700;
       font-size: 12px;
       font-family: ui-monospace, monospace;
-      letter-spacing: -0.2px;
     }
     .rem-badge.positive {
       background: var(--green-glow);
@@ -588,117 +455,56 @@
       color: var(--danger);
       border: 1px solid var(--danger-border);
     }
+    td.col-action { width: 34px; text-align: center; }
 
-    /* 6. Action Delete Column */
-    td.col-action { width: 38px; text-align: center; }
-
-    /* Category Sliders, Amount Inputs & Lock Button */
-    .category-list { display: grid; gap: 10px; }
+    /* Categories Panel */
+    .category-list { display: grid; gap: 8px; }
     .cat-row {
-      padding: 12px;
+      padding: 10px 12px;
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--panel-alt);
-      transition: border-color 0.2s ease;
+      transition: border-color 0.15s ease;
     }
-    .cat-row.is-locked {
-      border-color: rgba(69, 212, 131, 0.35);
-      background: #0d1611;
-    }
-    .cat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .cat-name-wrap { display: flex; align-items: center; gap: 6px; }
-    .cat-name { font-weight: 700; }
+    .cat-row.is-locked { border-color: var(--green-border); background: #0d1611; }
+    .cat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .cat-name-wrap { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; }
     .cat-inputs-wrap { display: flex; align-items: center; gap: 6px; }
-    
     .btn-lock {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 26px;
-      padding: 0;
-      border-radius: 6px;
-      border: 1px solid var(--line);
-      background: #0d1611;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      user-select: none;
+      width: 26px; height: 24px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 5px; border: 1px solid var(--line);
+      background: #0d1611; font-size: 12px; cursor: pointer;
     }
-    .btn-lock:hover {
-      background: #18281e;
-      border-color: var(--green);
-    }
-    .btn-lock.is-locked {
-      background: rgba(69, 212, 131, 0.15);
-      border-color: rgba(69, 212, 131, 0.5);
-      color: var(--green);
-    }
-
+    .btn-lock.is-locked { background: var(--green-glow); border-color: var(--green); color: var(--green); }
     .cat-input-mini {
-      width: 85px;
-      text-align: right;
-      padding: 3px 6px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--green);
-      background: #080d0a;
-      border: 1px solid #1c2820;
-      border-radius: 6px;
+      width: 80px; text-align: right; padding: 3px 6px;
+      font-size: 12px; font-weight: 700; color: var(--green);
+      background: #080d0a; border: 1px solid #1c2820; border-radius: 5px;
+      font-family: ui-monospace, monospace;
     }
-    .cat-input-mini:disabled {
-      background: #0d1410;
-      color: #63756a;
-      border-color: #17241c;
-      cursor: not-allowed;
-    }
-    .cat-controls { display: grid; gap: 4px; }
-    
-    input[type=range] {
-      width: 100%;
-      height: 6px;
-      accent-color: var(--green);
-      background: #202c25;
-      border-radius: 3px;
-      cursor: pointer;
-      border: 0;
-      padding: 0;
-    }
-    input[type=range]:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
+    .cat-input-mini:disabled { background: #0d1410; color: #63756a; border-color: #17241c; cursor: not-allowed; }
     .cat-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
 
-    .chart-wrap { display: flex; justify-content: center; padding: 12px 0 16px; }
+    /* Chart & Legend */
+    .chart-wrap { display: flex; justify-content: center; padding: 10px 0 14px; }
     .chart {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      position: relative;
-      background: #202a24;
+      width: 170px; height: 170px; border-radius: 50%;
+      position: relative; background: #202a24;
     }
     .chart:after {
-      content: "";
-      position: absolute;
-      inset: 42px;
-      background: #0d130f;
-      border-radius: 50%;
+      content: ""; position: absolute; inset: 40px;
+      background: #0d130f; border-radius: 50%;
     }
     .chart-label {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      z-index: 1;
-      text-align: center;
+      position: absolute; inset: 0; display: grid; place-items: center;
+      z-index: 1; text-align: center; font-family: ui-monospace, monospace;
     }
-    .chart-label strong { font-size: 17px; }
-
-    .legend { display: grid; gap: 8px; font-size: 13px; }
+    .chart-label strong { font-size: 16px; }
+    .legend { display: grid; gap: 6px; font-size: 12px; }
     .legend-row { display: flex; justify-content: space-between; align-items: center; }
-    .legend-left { display: flex; align-items: center; gap: 8px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .legend-left { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
     @media (max-width: 1280px) {
       .summary { grid-template-columns: repeat(3, 1fr); }
@@ -712,30 +518,29 @@
 </head>
 <body>
 
-<!-- Slide-Out Left Drawer for Note Totals -->
+<!-- Note Breakdown Slide-Out -->
 <div id="drawerOverlay" class="drawer-overlay"></div>
 <aside id="drawerPanel" class="drawer-panel">
   <div class="drawer-header">
-    <h3>📋 Note & Description Totals</h3>
-    <button type="button" id="closeDrawerBtn" class="drawer-close" title="Close">✕</button>
+    <h3>📋 Description Totals</h3>
+    <button type="button" id="closeDrawerBtn" class="drawer-close">✕</button>
   </div>
   <div class="drawer-controls">
-    <label for="drawerCatFilter">Filter Category:</label>
-    <select id="drawerCatFilter" class="btn" style="width:100%;font-size:13px;"></select>
+    <select id="drawerCatFilter" class="btn" style="width:100%;font-size:12px;"></select>
   </div>
   <div id="drawerBody" class="drawer-body"></div>
   <div class="drawer-footer">
-    <span>Total Logged:</span>
-    <strong id="drawerGrandTotal">MYR 0.00</strong>
+    <span style="color:var(--muted);font-size:12px;">Total:</span>
+    <strong id="drawerGrandTotal" style="font-family:ui-monospace,monospace;font-size:15px;color:var(--green)">MYR 0.00</strong>
   </div>
 </aside>
 
-<!-- Master PIN / Password Lock Overlay -->
+<!-- Master PIN Overlay -->
 <div id="lockOverlay" class="lock-overlay">
   <div class="lock-card">
-    <div class="lock-icon" id="lockIcon">🔒</div>
+    <div style="font-size:36px;margin-bottom:8px" id="lockIcon">🔒</div>
     <h2 id="lockTitle">Budget Vault</h2>
-    <p id="lockDesc">Enter your PIN to access your finances.</p>
+    <p id="lockDesc">Enter your Master PIN to unlock.</p>
     <form id="lockForm" onsubmit="return false;">
       <input type="password" id="pinInput" class="lock-input" placeholder="••••" autocomplete="current-password" autofocus>
       <button type="submit" id="unlockBtn" class="lock-btn">Unlock Dashboard</button>
@@ -748,36 +553,35 @@
   <header>
     <div>
       <h1>Monthly Budget Planner</h1>
-      <p>Live zero-sum dynamic balancing, category locks & running waterfall ledger.</p>
+      <p>Deterministic zero-sum balancing, category pools & waterfall ledger.</p>
     </div>
     <div class="actions">
-      <button class="btn" id="openDrawerBtn" title="Slide out Note Totals breakdown">📋 Note Totals</button>
+      <button class="btn" id="openDrawerBtn">📋 Note Totals</button>
       <span class="sync-badge" id="syncStatus">Local Only</span>
       <button class="btn" id="cloudSyncBtn">☁️ Cloud Sync</button>
-      <button class="btn" id="lockScreenBtn" title="Lock the application">🔒 Lock</button>
-      <button class="btn" id="changePinBtn" title="Change Master PIN">🔑 Change PIN</button>
-      <button class="btn danger" id="resetDataBtn" title="Wipe stored data to clean state">↺ Reset</button>
-      <button class="btn" id="currencyBtn">Currency: <b id="currLabel">MYR</b></button>
-      <button class="btn" id="dupMonthBtn">Duplicate Month</button>
-      <button class="btn danger" id="delMonthBtn" title="Delete current month">Delete Month</button>
+      <button class="btn" id="lockScreenBtn">🔒 Lock</button>
+      <button class="btn" id="changePinBtn">🔑 PIN</button>
+      <button class="btn danger" id="resetDataBtn">↺ Reset</button>
+      <button class="btn" id="currencyBtn"><b id="currLabel">MYR</b></button>
+      <button class="btn" id="dupMonthBtn">Duplicate</button>
+      <button class="btn danger" id="delMonthBtn">Delete</button>
       <button class="btn primary" id="addMonthBtn">+ Add Month</button>
     </div>
   </header>
 
-  <!-- Clean, click-safe month navigation tabs -->
   <nav class="months" id="monthNav"></nav>
 
-  <!-- 6 Reactive Summary Cards -->
+  <!-- 6 Exact Primary Metric Cards -->
   <div class="summary">
     <div class="stat">
       <span>Monthly Income</span>
       <strong id="statIncome">MYR 0.00</strong>
-      <small>Base take-home</small>
+      <small>Take-home baseline</small>
     </div>
     <div class="stat">
       <span>Savings</span>
       <strong id="statSavings">MYR 0.00</strong>
-      <small id="statSavingsSub">0% share</small>
+      <small id="statSavingsSub">0% allocated</small>
     </div>
     <div class="stat">
       <span>Needs</span>
@@ -790,14 +594,14 @@
       <small id="statWantsSub">Left: MYR 0.00</small>
     </div>
     <div class="stat">
-      <span>Remaining</span>
+      <span>Remaining Cash</span>
       <strong id="statRemaining" class="positive">MYR 0.00</strong>
-      <small id="statRemainingSub">Net unspent cash</small>
+      <small>Net bank balance</small>
     </div>
     <div class="stat" style="border-color: #235234; background: linear-gradient(145deg, #13271c, #0e1a13);">
       <span style="color:var(--green)">★ Goals (Total)</span>
       <strong id="statGoals" class="positive">MYR 0.00</strong>
-      <small id="statGoalsSub">All unspent cash waterfalls here</small>
+      <small id="statGoalsSub">Waterfall surplus</small>
     </div>
   </div>
 
@@ -815,7 +619,7 @@
           <div class="toolbar">
             <div class="field-group">
               <label><b style="color:var(--text)">Net Income:</b></label>
-              <input id="inputIncome" class="money-input" type="number" step="0.01" min="0" placeholder="Enter income...">
+              <input id="inputIncome" class="money-input" type="number" step="0.01" min="0" placeholder="0.00">
             </div>
             <div class="field-group">
               <label>Year</label>
@@ -832,7 +636,7 @@
                   <th class="col-day">Day</th>
                   <th class="col-cat">Category</th>
                   <th>Description / Note</th>
-                  <th class="col-spent">Spent (-) / Received (+)</th>
+                  <th class="col-spent">Spent (-) / Recv (+)</th>
                   <th class="col-rem">Cat. Remaining</th>
                   <th class="col-action"></th>
                 </tr>
@@ -847,18 +651,17 @@
     <aside>
       <section class="card" style="margin-bottom:20px">
         <div class="card-head">
-          <strong>Category Budget</strong>
+          <strong>Category Targets</strong>
           <span class="small" id="allocStatus">100% allocated</span>
         </div>
         <div class="card-body">
           <div id="categoryContainer" class="category-list"></div>
-          
-          <div style="display:flex;gap:8px;margin-top:14px">
+          <div style="display:flex;gap:8px;margin-top:12px">
             <input id="newCatInput" placeholder="Add category…" style="flex:1">
             <button class="btn" id="createCatBtn">Add</button>
           </div>
-          <p class="small" style="margin-top:12px;line-height:1.4">
-            * <b>🔒 Lock</b> categories to freeze their numbers. <b>🔓 Unlocked</b> categories automatically adjust up/down so the total is always 100% of income.
+          <p class="small" style="margin-top:10px;line-height:1.4">
+            * 🔒 <b>Locked</b> categories keep exact figures. 🔓 <b>Unlocked</b> categories auto-rebalance to 100% of income.
           </p>
         </div>
       </section>
@@ -871,7 +674,7 @@
               <div class="chart-label">
                 <div>
                   <strong id="chartVal">0</strong>
-                  <span class="small" style="display:block">Allocated</span>
+                  <span class="small" style="display:block">Targeted</span>
                 </div>
               </div>
             </div>
@@ -892,15 +695,15 @@
 
   const uid = () => Math.random().toString(36).substring(2, 9);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const round2 = n => Math.round((+n || 0) * 100) / 100;
 
-  // --- NATIVE SHA-256 HASHING HELPER ---
   async function hashText(str) {
     const buffer = new TextEncoder().encode(str);
     const digest = await crypto.subtle.digest('SHA-256', buffer);
     return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // --- PIN / LOCKSCREEN CONTROLLER ---
+  // --- PIN LOCK SYSTEM ---
   const lockOverlay = document.getElementById('lockOverlay');
   const appContent = document.getElementById('appContent');
   const lockTitle = document.getElementById('lockTitle');
@@ -910,21 +713,12 @@
   const lockError = document.getElementById('lockError');
   const lockIcon = document.getElementById('lockIcon');
 
-  let isSetupMode = !localStorage.getItem(PIN_KEY);
-
   function configureLockUI() {
-    isSetupMode = !localStorage.getItem(PIN_KEY);
-    if (isSetupMode) {
-      lockIcon.textContent = '🛡️';
-      lockTitle.textContent = 'Create Master PIN';
-      lockDesc.textContent = 'Set a PIN or password to secure your budget planner.';
-      unlockBtn.textContent = 'Set PIN & Open';
-    } else {
-      lockIcon.textContent = '🔒';
-      lockTitle.textContent = 'Budget Vault Locked';
-      lockDesc.textContent = 'Enter your Master PIN to view your finances.';
-      unlockBtn.textContent = 'Unlock Dashboard';
-    }
+    const isSetup = !localStorage.getItem(PIN_KEY);
+    lockIcon.textContent = isSetup ? '🛡️' : '🔒';
+    lockTitle.textContent = isSetup ? 'Create Master PIN' : 'Budget Vault Locked';
+    lockDesc.textContent = isSetup ? 'Set a PIN to secure your dashboard.' : 'Enter your Master PIN to view your finances.';
+    unlockBtn.textContent = isSetup ? 'Set PIN & Open' : 'Unlock Dashboard';
     pinInput.value = '';
     lockError.textContent = '';
   }
@@ -943,55 +737,42 @@
 
   async function handleUnlockAttempt() {
     const val = pinInput.value.trim();
-    if (!val) {
-      lockError.textContent = 'Please enter a PIN or password.';
-      return;
-    }
-
+    if (!val) { lockError.textContent = 'Please enter a PIN.'; return; }
     const hashed = await hashText(val);
-
-    if (isSetupMode) {
+    const stored = localStorage.getItem(PIN_KEY);
+    if (!stored) {
       localStorage.setItem(PIN_KEY, hashed);
       hideLockScreen();
       render();
+    } else if (hashed === stored) {
+      hideLockScreen();
+      render();
     } else {
-      const storedHash = localStorage.getItem(PIN_KEY);
-      if (hashed === storedHash) {
-        hideLockScreen();
-        render();
-      } else {
-        lockError.textContent = 'Incorrect PIN. Please try again.';
-        pinInput.value = '';
-        pinInput.focus();
-      }
+      lockError.textContent = 'Incorrect PIN.';
+      pinInput.value = '';
+      pinInput.focus();
     }
   }
 
   unlockBtn.onclick = handleUnlockAttempt;
-  document.getElementById('lockForm').onsubmit = (e) => {
-    e.preventDefault();
-    handleUnlockAttempt();
-  };
-
+  document.getElementById('lockForm').onsubmit = (e) => { e.preventDefault(); handleUnlockAttempt(); };
   document.getElementById('lockScreenBtn').onclick = showLockScreen;
 
   document.getElementById('changePinBtn').onclick = async () => {
-    const currentAttempt = prompt('Enter your CURRENT Master PIN:');
-    if (currentAttempt === null) return;
-    const currentHash = await hashText(currentAttempt.trim());
-    if (currentHash !== localStorage.getItem(PIN_KEY)) {
-      alert('Incorrect current PIN!');
+    const cur = prompt('Enter your CURRENT Master PIN:');
+    if (!cur) return;
+    if (await hashText(cur.trim()) !== localStorage.getItem(PIN_KEY)) {
+      alert('Incorrect PIN!');
       return;
     }
-    const newPin = prompt('Enter your NEW Master PIN or password:');
-    if (newPin && newPin.trim()) {
-      const newHash = await hashText(newPin.trim());
-      localStorage.setItem(PIN_KEY, newHash);
-      alert('Master PIN updated successfully!');
+    const next = prompt('Enter your NEW Master PIN:');
+    if (next && next.trim()) {
+      localStorage.setItem(PIN_KEY, await hashText(next.trim()));
+      alert('PIN updated.');
     }
   };
 
-  // --- STATE INITIALIZATION ---
+  // --- STATE INIT ---
   const defaultCategories = () => [
     { id: uid(), name: 'Savings', pct: 0, budget: 0, locked: true },
     { id: uid(), name: 'Needs', pct: 28, budget: 0, locked: false },
@@ -999,10 +780,7 @@
   ];
 
   const createBlankMonth = (y, m) => ({
-    id: uid(),
-    year: y,
-    month: m,
-    income: 0,
+    id: uid(), year: y, month: m, income: 0,
     categories: defaultCategories(),
     expenses: []
   });
@@ -1010,8 +788,7 @@
   const now = new Date();
   let appState = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
   if (!appState || !appState.months || appState.months.length === 0) {
-    const prev = JSON.parse(localStorage.getItem('budget_planner_v6_clean') || 'null');
-    appState = prev || {
+    appState = {
       currency: 'MYR',
       activeMonthIdx: 0,
       showAllDays: false,
@@ -1019,17 +796,21 @@
     };
   }
 
+  // Schema normalizer
   appState.months.forEach(m => {
+    m.income = round2(m.income);
     m.categories.forEach(c => {
       if (c.locked === undefined) c.locked = (c.name.toLowerCase() === 'savings');
-      if (c.budget === undefined) c.budget = (c.pct / 100) * (m.income || 0);
+      c.budget = round2(c.budget);
+      c.pct = round2(c.pct);
     });
     (m.expenses || []).forEach(e => {
+      e.spent = round2(e.spent);
       if (!e.flowType) e.flowType = 'spent';
     });
   });
 
-  // --- CLOUD SYNC CONFIGURATION ---
+  // --- CLOUD SYNC ---
   const SYNC_CONFIG = {
     get gistId() { return localStorage.getItem('budget_gist_id') || ''; },
     get token() { return localStorage.getItem('budget_gh_token') || ''; },
@@ -1059,15 +840,14 @@
           'Accept': 'application/vnd.github.v3+json'
         }
       });
-      if (!res.ok) throw new Error('Failed to download from Gist');
+      if (!res.ok) throw new Error('Download failed');
       const data = await res.json();
-      const content = data.files && data.files['budget_data.json'] ? data.files['budget_data.json'].content : null;
+      const content = data.files?.['budget_data.json']?.content;
       if (content) {
         updateSyncUI('synced', '✓ Synced');
         return JSON.parse(content);
       }
     } catch (e) {
-      console.error('Cloud pull failed:', e);
       updateSyncUI('', 'Sync Error');
     }
     return null;
@@ -1075,10 +855,7 @@
 
   let cloudSaveTimer = null;
   function pushToCloud(state) {
-    if (!SYNC_CONFIG.gistId || !SYNC_CONFIG.token) {
-      updateSyncUI('', 'Local Only');
-      return;
-    }
+    if (!SYNC_CONFIG.gistId || !SYNC_CONFIG.token) { updateSyncUI('', 'Local Only'); return; }
     updateSyncUI('syncing', '☁️ Saving...');
     clearTimeout(cloudSaveTimer);
     cloudSaveTimer = setTimeout(async () => {
@@ -1091,17 +868,12 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            files: {
-              'budget_data.json': {
-                content: JSON.stringify(state, null, 2)
-              }
-            }
+            files: { 'budget_data.json': { content: JSON.stringify(state, null, 2) } }
           })
         });
-        if (!res.ok) throw new Error('Failed to push to Gist');
+        if (!res.ok) throw new Error('Save failed');
         updateSyncUI('synced', '✓ Synced');
       } catch (e) {
-        console.error('Cloud push failed:', e);
         updateSyncUI('', 'Sync Error');
       }
     }, 1000);
@@ -1115,18 +887,18 @@
   const currentMonth = () => appState.months[appState.activeMonthIdx];
   const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
 
-  const fmtMoney = (val) => `${appState.currency} ${(+val || 0).toLocaleString('en-MY', {
+  const fmtMoney = (val) => `${appState.currency} ${(round2(val)).toLocaleString('en-MY', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;
 
   function getCategoryNetSpent(m, catName) {
-    return (m.expenses || [])
-      .filter(e => e.category === catName)
+    return round2((m.expenses || [])
+      .filter(e => (e.category || '').toLowerCase() === catName.toLowerCase())
       .reduce((sum, e) => {
-        const amt = +e.spent || 0;
-        return e.flowType === 'received' ? sum - amt : sum + amt;
-      }, 0);
+        const amt = round2(e.spent);
+        return e.flowType === 'received' ? (sum - amt) : (sum + amt);
+      }, 0));
   }
 
   function findCat(m, name) {
@@ -1138,99 +910,98 @@
     return wants ? wants.name : (m.categories[0]?.name || 'Wants');
   }
 
-  // --- ZERO-SUM DYNAMIC REBALANCING ENGINE ---
-  function rebalanceCategory(m, editId, targetVal, isPct = false) {
-    const inc = +m.income || 0;
+  // --- DETERMINISTIC BALANCING ENGINE ---
+  function rebalanceCategory(m, editId, targetAmount) {
+    const inc = round2(m.income);
     if (inc <= 0) return;
 
-    const targetCat = m.categories.find(c => c.id === editId);
-    if (!targetCat || targetCat.locked) return;
+    const target = m.categories.find(c => c.id === editId);
+    if (!target || target.locked) return;
 
-    let targetBudget = isPct ? (targetVal / 100) * inc : targetVal;
-    targetBudget = Math.max(0, Math.min(inc, targetBudget));
-
-    const oldBudget = targetCat.budget || 0;
-    const delta = targetBudget - oldBudget;
-
-    if (Math.abs(delta) < 0.001) return;
+    targetAmount = Math.max(0, Math.min(inc, round2(targetAmount)));
+    const lockedTotal = round2(m.categories.filter(c => c.id !== editId && c.locked).reduce((s, c) => s + c.budget, 0));
+    const availableForTarget = Math.max(0, round2(inc - lockedTotal));
+    target.budget = Math.min(targetAmount, availableForTarget);
 
     const unlockedOthers = m.categories.filter(c => c.id !== editId && !c.locked);
+    const pool = Math.max(0, round2(inc - lockedTotal - target.budget));
 
-    if (unlockedOthers.length === 0) {
-      const lockedSum = m.categories.filter(c => c.id !== editId).reduce((sum, c) => sum + (c.budget || 0), 0);
-      const maxAvailable = Math.max(0, inc - lockedSum);
-      targetCat.budget = Math.min(targetBudget, maxAvailable);
-      targetCat.pct = inc > 0 ? (targetCat.budget / inc) * 100 : 0;
-      updateCalculationsLive();
-      return;
-    }
+    if (unlockedOthers.length > 0) {
+      const oldUnlockedSum = round2(unlockedOthers.reduce((s, c) => s + c.budget, 0));
+      let allocatedSoFar = 0;
 
-    const totalUnlockedBudget = unlockedOthers.reduce((sum, c) => sum + (c.budget || 0), 0);
-
-    if (delta > 0) {
-      const actualDelta = Math.min(delta, totalUnlockedBudget);
-      targetCat.budget = oldBudget + actualDelta;
-
-      unlockedOthers.forEach(c => {
-        const share = totalUnlockedBudget > 0 ? (c.budget / totalUnlockedBudget) : (1 / unlockedOthers.length);
-        c.budget = Math.max(0, c.budget - (actualDelta * share));
+      unlockedOthers.forEach((c, idx) => {
+        if (idx === unlockedOthers.length - 1) {
+          c.budget = Math.max(0, round2(pool - allocatedSoFar));
+        } else {
+          const ratio = oldUnlockedSum > 0 ? (c.budget / oldUnlockedSum) : (1 / unlockedOthers.length);
+          const chunk = round2(pool * ratio);
+          c.budget = Math.max(0, chunk);
+          allocatedSoFar = round2(allocatedSoFar + chunk);
+        }
       });
-    } else {
-      const absDelta = -delta;
-      targetCat.budget = targetBudget;
-
-      unlockedOthers.forEach(c => {
-        const share = totalUnlockedBudget > 0 ? (c.budget / totalUnlockedBudget) : (1 / unlockedOthers.length);
-        c.budget += absDelta * share;
-      });
-    }
-
-    const currentTotal = m.categories.reduce((sum, c) => sum + c.budget, 0);
-    const diff = inc - currentTotal;
-    if (Math.abs(diff) > 0.001 && unlockedOthers.length > 0) {
-      unlockedOthers[0].budget = Math.max(0, unlockedOthers[0].budget + diff);
     }
 
     m.categories.forEach(c => {
-      c.pct = inc > 0 ? (c.budget / inc) * 100 : 0;
+      c.pct = inc > 0 ? round2((c.budget / inc) * 100) : 0;
     });
-
     updateCalculationsLive();
   }
 
-  function normalizeInitialBudgets(m) {
-    const inc = +m.income || 0;
+  function syncIncomeAdjustment(m) {
+    const inc = round2(m.income);
     if (inc <= 0) {
       m.categories.forEach(c => { c.budget = 0; c.pct = 0; });
       return;
     }
 
-    const currentTotal = m.categories.reduce((sum, c) => sum + (c.budget || 0), 0);
-    const diff = inc - currentTotal;
+    const lockedSum = round2(m.categories.filter(c => c.locked).reduce((s, c) => s + c.budget, 0));
+    const unlocked = m.categories.filter(c => !c.locked);
 
-    if (Math.abs(diff) > 0.01) {
-      const unlocked = m.categories.filter(c => !c.locked);
-      if (unlocked.length > 0) {
-        unlocked[0].budget = Math.max(0, unlocked[0].budget + diff);
-      }
+    if (lockedSum >= inc) {
+      const scale = inc / lockedSum;
+      m.categories.forEach(c => {
+        if (c.locked) {
+          c.budget = round2(c.budget * scale);
+        } else {
+          c.budget = 0;
+        }
+      });
+    } else {
+      const pool = round2(inc - lockedSum);
+      const oldUnlockedSum = round2(unlocked.reduce((s, c) => s + c.budget, 0));
+      let allocated = 0;
+
+      unlocked.forEach((c, idx) => {
+        if (idx === unlocked.length - 1) {
+          c.budget = Math.max(0, round2(pool - allocated));
+        } else {
+          const ratio = oldUnlockedSum > 0 ? (c.budget / oldUnlockedSum) : (1 / unlocked.length);
+          const chunk = round2(pool * ratio);
+          c.budget = Math.max(0, chunk);
+          allocated = round2(allocated + chunk);
+        }
+      });
     }
 
     m.categories.forEach(c => {
-      c.pct = inc > 0 ? (c.budget / inc) * 100 : 0;
+      c.pct = round2((c.budget / inc) * 100);
     });
   }
 
   function updateCalculationsLive() {
     const m = currentMonth();
-    const inc = +m.income || 0;
-    const totalBudgeted = m.categories.reduce((acc, c) => acc + c.budget, 0);
-    
-    const totalNetSpent = (m.expenses || []).reduce((acc, e) => {
-      const amt = +e.spent || 0;
-      return e.flowType === 'received' ? acc - amt : acc + amt;
-    }, 0);
-    
-    const netRemaining = inc - totalNetSpent;
+    const inc = round2(m.income);
+    const totalBudgeted = round2(m.categories.reduce((acc, c) => acc + c.budget, 0));
+
+    // Net actual outflow (spent adds, received subtracts)
+    const totalNetOutflows = round2((m.expenses || []).reduce((acc, e) => {
+      const amt = round2(e.spent);
+      return e.flowType === 'received' ? (acc - amt) : (acc + amt);
+    }, 0));
+
+    // True remaining bank balance
+    const netRemaining = round2(inc - totalNetOutflows);
 
     // 1. Monthly Income Card
     document.getElementById('statIncome').textContent = fmtMoney(inc);
@@ -1238,15 +1009,15 @@
     // 2. Savings Card
     const savCat = findCat(m, 'Savings');
     const savVal = savCat ? savCat.budget : 0;
-    const savSpent = savCat ? getCategoryNetSpent(m, savCat.name) : 0;
+    const savNetSpent = savCat ? getCategoryNetSpent(m, savCat.name) : 0;
     document.getElementById('statSavings').textContent = fmtMoney(savVal);
-    document.getElementById('statSavingsSub').textContent = `${savCat ? savCat.pct.toFixed(0) : 0}% · Net ${fmtMoney(savSpent)}`;
+    document.getElementById('statSavingsSub').textContent = `${savCat ? savCat.pct.toFixed(0) : 0}% · Net ${fmtMoney(savNetSpent)}`;
 
     // 3. Needs Card
     const needsCat = findCat(m, 'Needs');
     const needsVal = needsCat ? needsCat.budget : 0;
-    const needsSpent = needsCat ? getCategoryNetSpent(m, needsCat.name) : 0;
-    const needsLeft = needsVal - needsSpent;
+    const needsNetSpent = needsCat ? getCategoryNetSpent(m, needsCat.name) : 0;
+    const needsLeft = round2(needsVal - needsNetSpent);
     document.getElementById('statNeeds').textContent = fmtMoney(needsVal);
     const needsSub = document.getElementById('statNeedsSub');
     needsSub.textContent = `Left: ${fmtMoney(needsLeft)}`;
@@ -1255,51 +1026,44 @@
     // 4. Wants Card
     const wantsCat = findCat(m, 'Wants');
     const wantsVal = wantsCat ? wantsCat.budget : 0;
-    const wantsSpent = wantsCat ? getCategoryNetSpent(m, wantsCat.name) : 0;
-    const wantsLeft = wantsVal - wantsSpent;
+    const wantsNetSpent = wantsCat ? getCategoryNetSpent(m, wantsCat.name) : 0;
+    const wantsLeft = round2(wantsVal - wantsNetSpent);
     document.getElementById('statWants').textContent = fmtMoney(wantsVal);
     const wantsSub = document.getElementById('statWantsSub');
     wantsSub.textContent = `Left: ${fmtMoney(wantsLeft)}`;
     wantsSub.className = wantsLeft < 0 ? 'negative' : '';
 
-    // 5. Remaining
+    // 5. Net Remaining
     const remElem = document.getElementById('statRemaining');
     remElem.textContent = fmtMoney(netRemaining);
     remElem.className = netRemaining < 0 ? 'negative' : 'positive';
-    document.getElementById('statRemainingSub').textContent = inc > 0 ? 'Net unspent cash' : 'Enter income to start';
 
-    // 6. Goals Pot
-    const savLocked = Math.max(0, savVal - savSpent);
-    const goalsTotal = Math.max(0, netRemaining - savLocked);
+    // 6. Goals Pot: All remaining cash not locked in savings
+    const savUnspent = Math.max(0, round2(savVal - savNetSpent));
+    const goalsTotal = Math.max(0, round2(netRemaining - savUnspent));
     document.getElementById('statGoals').textContent = fmtMoney(goalsTotal);
-    document.getElementById('statGoalsSub').textContent = savLocked > 0 
-      ? `Remaining unspent - Locked Savings (${fmtMoney(savLocked)})`
-      : `All unspent cash waterfalls here`;
+    document.getElementById('statGoalsSub').textContent = savUnspent > 0
+      ? `Net remaining minus savings (${fmtMoney(savUnspent)})`
+      : 'All unspent cash waterfalls here';
 
-    // Category Slider Sync
+    // Update Category Input Displays (Only if not actively typing)
     m.categories.forEach(c => {
       const amtInput = document.querySelector(`.cat-amt-input[data-id="${c.id}"]`);
       if (amtInput && document.activeElement !== amtInput) {
         amtInput.value = c.budget > 0 ? c.budget.toFixed(2) : '0.00';
       }
-
       const metaEl = document.querySelector(`.cat-meta-label[data-id="${c.id}"]`);
       if (metaEl) {
         const netSpent = getCategoryNetSpent(m, c.name);
         metaEl.textContent = `${c.pct.toFixed(1)}% · ${fmtMoney(netSpent)} net spent`;
       }
-
-      const rangeInput = document.querySelector(`input[type=range][data-cat="${c.id}"]`);
-      if (rangeInput && document.activeElement !== rangeInput) {
-        rangeInput.value = c.pct.toFixed(1);
-      }
     });
 
-    const totalAllocPct = m.categories.reduce((acc, c) => acc + c.pct, 0);
+    // Allocation Status
+    const totalAllocPct = round2(m.categories.reduce((acc, c) => acc + c.pct, 0));
     const lockedCount = m.categories.filter(c => c.locked).length;
     const statusEl = document.getElementById('allocStatus');
-
-    if (Math.abs(totalAllocPct - 100) < 0.15) {
+    if (Math.abs(totalAllocPct - 100) <= 0.5) {
       statusEl.textContent = `100% allocated · ${lockedCount > 0 ? `🔒 ${lockedCount} Locked` : 'Balanced ✓'}`;
       statusEl.className = 'small positive';
     } else {
@@ -1307,6 +1071,7 @@
       statusEl.className = 'small';
     }
 
+    // Donut Chart
     let cursor = 0;
     const slices = m.categories.map((c, i) => {
       const share = totalBudgeted > 0 ? (c.budget / totalBudgeted) * 100 : 0;
@@ -1317,9 +1082,9 @@
     document.getElementById('donutChart').style.background = totalBudgeted > 0 ? `conic-gradient(${slices.join(',')})` : '#202a24';
     document.getElementById('chartVal').textContent = fmtMoney(totalBudgeted).replace('.00','');
 
-    // Running balance recalculation
+    // Waterfall Running Balance Ledger Table
     const runningBal = {};
-    m.categories.forEach(c => { runningBal[c.name] = c.budget; });
+    m.categories.forEach(c => { runningBal[c.name] = round2(c.budget); });
 
     document.querySelectorAll('#txBody tr').forEach(tr => {
       const catSelect = tr.querySelector('select[data-field="category"], select[data-newentry="category"]');
@@ -1330,17 +1095,17 @@
 
       if (catSelect && remCol) {
         const cat = catSelect.value;
-        const amt = +(spentInput?.value || 0);
+        const amt = round2(spentInput?.value || 0);
 
         if (runningBal[cat] === undefined) {
           const catObj = m.categories.find(c => c.name === cat);
-          runningBal[cat] = catObj ? catObj.budget : 0;
+          runningBal[cat] = catObj ? round2(catObj.budget) : 0;
         }
 
         if (isReceived) {
-          runningBal[cat] += amt;
+          runningBal[cat] = round2(runningBal[cat] + amt);
         } else {
-          runningBal[cat] -= amt;
+          runningBal[cat] = round2(runningBal[cat] - amt);
         }
 
         const currentRem = runningBal[cat];
@@ -1349,48 +1114,43 @@
       }
     });
 
+    // Legend
     document.getElementById('legendList').innerHTML = m.categories.map((c, i) => `
       <div class="legend-row">
         <div class="legend-left">
           <span class="dot" style="background:${PALETTE[i % PALETTE.length]}"></span>
           <span>${esc(c.name)} ${c.locked ? '<small style="color:var(--green)">🔒</small>' : ''}</span>
         </div>
-        <span><b>${fmtMoney(c.budget)}</b> <small class="small">(${c.pct.toFixed(1)}%)</small></span>
+        <span style="font-family:ui-monospace,monospace"><b>${fmtMoney(c.budget)}</b> <small class="small">(${c.pct.toFixed(1)}%)</small></span>
       </div>
     `).join('');
 
     renderNoteTotalsDrawer();
   }
 
-  // --- SLIDE-OUT DRAWER NOTE TOTALS CALCULATOR ---
+  // --- NOTE DRAWER SYSTEM ---
   let drawerSelectedCategory = 'ALL';
 
   function renderNoteTotalsDrawer() {
     const m = currentMonth();
     const filterSelect = document.getElementById('drawerCatFilter');
-    
-    // Populate or sync category options inside the drawer dropdown
     const currentCats = m.categories.map(c => c.name);
-    let optionsHtml = `<option value="ALL" ${drawerSelectedCategory === 'ALL' ? 'selected' : ''}>★ All Categories (Combined)</option>`;
-    currentCats.forEach(cat => {
-      optionsHtml += `<option value="${esc(cat)}" ${drawerSelectedCategory === cat ? 'selected' : ''}>${esc(cat)}</option>`;
-    });
-    filterSelect.innerHTML = optionsHtml;
 
-    // Filter relevant expenses
+    filterSelect.innerHTML = `<option value="ALL" ${drawerSelectedCategory === 'ALL' ? 'selected' : ''}>★ All Categories (Combined)</option>` +
+      currentCats.map(cat => `<option value="${esc(cat)}" ${drawerSelectedCategory === cat ? 'selected' : ''}>${esc(cat)}</option>`).join('');
+
     const rawExpenses = m.expenses || [];
-    const filtered = drawerSelectedCategory === 'ALL' 
-      ? rawExpenses 
+    const filtered = drawerSelectedCategory === 'ALL'
+      ? rawExpenses
       : rawExpenses.filter(e => (e.category || '').toLowerCase() === drawerSelectedCategory.toLowerCase());
 
-    // Aggregate by Note/Description (case-insensitive trim)
     const aggregates = {};
-    let grandNetTotal = 0;
+    let grandNet = 0;
 
     filtered.forEach(e => {
       const rawNote = (e.note || '').trim();
       const noteKey = rawNote ? rawNote.toLowerCase() : '(unnamed note)';
-      const amt = +e.spent || 0;
+      const amt = round2(e.spent);
       const net = (e.flowType === 'received') ? -amt : amt;
 
       if (!aggregates[noteKey]) {
@@ -1401,25 +1161,20 @@
           count: 0
         };
       }
-
-      aggregates[noteKey].total += net;
+      aggregates[noteKey].total = round2(aggregates[noteKey].total + net);
       aggregates[noteKey].count += 1;
-      grandNetTotal += net;
+      grandNet = round2(grandNet + net);
     });
 
-    const sortedList = Object.values(aggregates).sort((a, b) => b.total - a.total);
+    const sorted = Object.values(aggregates).sort((a, b) => b.total - a.total);
     const drawerBody = document.getElementById('drawerBody');
 
-    if (sortedList.length === 0) {
-      drawerBody.innerHTML = `
-        <div style="text-align:center;padding:32px 10px;color:var(--muted)">
-          <div style="font-size:24px;margin-bottom:8px">📝</div>
-          No description notes logged for this view yet.
-        </div>`;
+    if (sorted.length === 0) {
+      drawerBody.innerHTML = `<div style="text-align:center;padding:32px 10px;color:var(--muted)">No notes logged for this selection.</div>`;
     } else {
-      drawerBody.innerHTML = sortedList.map(item => `
+      drawerBody.innerHTML = sorted.map(item => `
         <div class="note-item">
-          <div class="note-item-left">
+          <div style="min-width:0;flex:1;">
             <span class="note-item-title" title="${esc(item.displayName)}">${esc(item.displayName)}</span>
             <div class="note-item-meta">
               <span class="note-item-cat">${esc(item.category)}</span>
@@ -1432,72 +1187,54 @@
         </div>
       `).join('');
     }
-
-    document.getElementById('drawerGrandTotal').textContent = fmtMoney(grandNetTotal);
+    document.getElementById('drawerGrandTotal').textContent = fmtMoney(grandNet);
   }
 
-  // Slide Drawer Toggle Controls
   const drawerOverlay = document.getElementById('drawerOverlay');
   const drawerPanel = document.getElementById('drawerPanel');
 
-  function openDrawer() {
-    renderNoteTotalsDrawer();
-    drawerOverlay.classList.add('is-open');
-    drawerPanel.classList.add('is-open');
-  }
-
-  function closeDrawer() {
-    drawerOverlay.classList.remove('is-open');
-    drawerPanel.classList.remove('is-open');
-  }
+  function openDrawer() { renderNoteTotalsDrawer(); drawerOverlay.classList.add('is-open'); drawerPanel.classList.add('is-open'); }
+  function closeDrawer() { drawerOverlay.classList.remove('is-open'); drawerPanel.classList.remove('is-open'); }
 
   document.getElementById('openDrawerBtn').onclick = openDrawer;
   document.getElementById('closeDrawerBtn').onclick = closeDrawer;
   drawerOverlay.onclick = closeDrawer;
-
   document.getElementById('drawerCatFilter').onchange = (e) => {
     drawerSelectedCategory = e.target.value;
     renderNoteTotalsDrawer();
   };
-
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && drawerPanel.classList.contains('is-open')) {
-      closeDrawer();
-    }
+    if (e.key === 'Escape' && drawerPanel.classList.contains('is-open')) closeDrawer();
   });
 
+  // --- RENDER DOM ---
   function render() {
     const m = currentMonth();
-    normalizeInitialBudgets(m);
-
     const totalDays = daysInMonth(m.year, m.month);
     const defaultCatName = getDefaultExpenseCat(m);
 
     document.getElementById('currLabel').textContent = appState.currency;
-    
+
     const incInput = document.getElementById('inputIncome');
     if (document.activeElement !== incInput) {
       incInput.value = m.income > 0 ? m.income : '';
     }
 
     document.getElementById('inputYear').value = m.year;
-    document.getElementById('selectMonth').innerHTML = MONTH_NAMES.map((name, idx) => 
+    document.getElementById('selectMonth').innerHTML = MONTH_NAMES.map((name, idx) =>
       `<option value="${idx}" ${idx === m.month ? 'selected' : ''}>${name}</option>`
     ).join('');
 
-    // Safe Month Navigation Tabs
+    // Tabs
     document.getElementById('monthNav').innerHTML = appState.months.map((item, idx) => `
       <button class="month-tab ${idx === appState.activeMonthIdx ? 'active' : ''}" data-switch="${idx}">
         ${MONTH_NAMES[item.month]} ${item.year}
       </button>
     `).join('');
 
-    const delBtn = document.getElementById('delMonthBtn');
-    if (delBtn) {
-      delBtn.style.display = appState.months.length > 1 ? 'inline-block' : 'none';
-    }
+    document.getElementById('delMonthBtn').style.display = appState.months.length > 1 ? 'inline-block' : 'none';
 
-    // Categories with Lock Button
+    // Categories
     document.getElementById('categoryContainer').innerHTML = m.categories.map((c, i) => {
       const netSpent = getCategoryNetSpent(m, c.name);
       const col = PALETTE[i % PALETTE.length];
@@ -1506,46 +1243,41 @@
           <div class="cat-top">
             <div class="cat-name-wrap">
               <span class="dot" style="background:${col}"></span>
-              <span class="cat-name">${esc(c.name)}</span>
+              <span>${esc(c.name)}</span>
               ${c.locked ? '<span class="small positive" style="font-size:10px;font-weight:700">🔒 Locked</span>' : ''}
             </div>
             <div class="cat-inputs-wrap">
-              <button class="btn-lock ${c.locked ? 'is-locked' : ''}" data-togglelock="${c.id}" title="${c.locked ? 'Locked: Budget won\'t change when other categories are edited. Click to unlock.' : 'Unlocked: Balances dynamically with other categories. Click to lock.'}">
+              <button class="btn-lock ${c.locked ? 'is-locked' : ''}" data-togglelock="${c.id}" title="${c.locked ? 'Unlock category' : 'Lock category'}">
                 ${c.locked ? '🔒' : '🔓'}
               </button>
               <span style="font-size:11px;color:var(--muted)">${appState.currency}</span>
-              <input type="number" step="0.01" class="cat-input-mini cat-amt-input" data-id="${c.id}" 
-                value="${c.budget > 0 ? c.budget.toFixed(2) : '0.00'}" placeholder="0.00" 
-                ${c.locked ? 'disabled title="Click 🔒 to unlock and edit"' : ''}>
+              <input type="number" step="0.01" class="cat-input-mini cat-amt-input" data-id="${c.id}"
+                value="${c.budget > 0 ? c.budget.toFixed(2) : '0.00'}" placeholder="0.00"
+                ${c.locked ? 'disabled title="Unlock to edit target"' : ''}>
               ${m.categories.length > 1 ? `<button class="btn danger btn-sm" data-delcat="${c.id}">×</button>` : ''}
             </div>
           </div>
-          <div class="cat-controls">
-            <input type="range" min="0" max="100" step="0.1" value="${c.pct.toFixed(1)}" data-cat="${c.id}" 
-              ${c.locked ? 'disabled title="Click 🔒 to unlock and adjust slider"' : ''}>
-            <div class="cat-meta">
-              <span class="cat-meta-label" data-id="${c.id}">${c.pct.toFixed(1)}% · ${fmtMoney(netSpent)} net spent</span>
-              <span>${c.budget - netSpent < 0 ? '<span class="negative">Over budget</span>' : (c.locked ? '<span style="color:var(--green)">Locked target</span>' : 'On track')}</span>
-            </div>
+          <div class="cat-meta">
+            <span class="cat-meta-label" data-id="${c.id}">${c.pct.toFixed(1)}% · ${fmtMoney(netSpent)} net spent</span>
+            <span>${c.budget - netSpent < 0 ? '<span class="negative">Over budget</span>' : 'On track'}</span>
           </div>
         </div>
       `;
     }).join('');
 
-    // Spending Ledger Table Initial Build
+    // Table
     document.getElementById('viewToggleBtn').textContent = appState.showAllDays ? 'View: All Days (1–31)' : 'View: Active Days Only';
 
     let tableHtml = '';
     let totalCount = 0;
     const expenses = m.expenses || [];
-
     const runningBal = {};
-    m.categories.forEach(c => { runningBal[c.name] = c.budget; });
+    m.categories.forEach(c => { runningBal[c.name] = round2(c.budget); });
 
     for (let day = 1; day <= totalDays; day++) {
       const dayInstances = expenses.filter(e => +e.day === day);
       const dayNet = dayInstances.reduce((sum, item) => {
-        const v = +item.spent || 0;
+        const v = round2(item.spent);
         return item.flowType === 'received' ? sum - v : sum + v;
       }, 0);
       const dayFormatted = String(day).padStart(2, '0');
@@ -1561,7 +1293,7 @@
             <td class="col-day">
               <div class="day-cell">
                 <span class="day-chip">${dayFormatted}</span>
-                <button class="btn-add-inst" data-addinst="${day}" title="Add entry to Day ${day}">+</button>
+                <button class="btn-add-inst" data-addinst="${day}">+</button>
               </div>
             </td>
             <td class="col-cat">
@@ -1570,11 +1302,11 @@
               </select>
             </td>
             <td>
-              <input class="table-note-input" type="text" placeholder="Add note..." data-newentry="note" data-day="${day}">
+              <input class="table-note-input" type="text" placeholder="Add expense note..." data-newentry="note" data-day="${day}">
             </td>
             <td class="col-spent">
               <div class="table-spent-box is-spent">
-                <button type="button" class="btn-type-toggle is-spent" data-toggletype="spent" data-day="${day}" title="Click to toggle: [-] Spent vs [+] Received">-</button>
+                <button type="button" class="btn-type-toggle is-spent" data-toggletype="spent" data-day="${day}">-</button>
                 <input class="table-spent-input" type="number" step="0.01" placeholder="0.00" data-newentry="spent" data-day="${day}">
               </div>
             </td>
@@ -1589,20 +1321,15 @@
           totalCount++;
           const isFirst = instIdx === 0;
           const cat = inst.category;
-          const amt = +inst.spent || 0;
+          const amt = round2(inst.spent);
           const isRec = inst.flowType === 'received';
 
           if (runningBal[cat] === undefined) {
             const catObj = m.categories.find(c => c.name === cat);
-            runningBal[cat] = catObj ? catObj.budget : 0;
+            runningBal[cat] = catObj ? round2(catObj.budget) : 0;
           }
 
-          if (isRec) {
-            runningBal[cat] += amt;
-          } else {
-            runningBal[cat] -= amt;
-          }
-
+          runningBal[cat] = isRec ? round2(runningBal[cat] + amt) : round2(runningBal[cat] - amt);
           const curRem = runningBal[cat];
 
           tableHtml += `
@@ -1611,7 +1338,7 @@
                 <div class="day-cell">
                   ${isFirst ? `
                     <span class="day-chip">${dayFormatted}</span>
-                    <button class="btn-add-inst" data-addinst="${day}" title="Add another entry to Day ${day}">+</button>
+                    <button class="btn-add-inst" data-addinst="${day}">+</button>
                     ${dayInstances.length > 1 ? `<span class="day-total-badge">${dayNet < 0 ? '+' : ''}${fmtMoney(Math.abs(dayNet))}</span>` : ''}
                   ` : `
                     <span class="day-sub-label">↳ #${instIdx + 1}</span>
@@ -1628,7 +1355,7 @@
               </td>
               <td class="col-spent">
                 <div class="table-spent-box ${isRec ? 'is-received' : 'is-spent'}">
-                  <button type="button" class="btn-type-toggle ${isRec ? 'is-received' : 'is-spent'}" data-toggletype="${inst.flowType || 'spent'}" data-txid="${inst.id}" title="Click to toggle: [-] Spent vs [+] Received">
+                  <button type="button" class="btn-type-toggle ${isRec ? 'is-received' : 'is-spent'}" data-toggletype="${inst.flowType || 'spent'}" data-txid="${inst.id}">
                     ${isRec ? '+' : '-'}
                   </button>
                   <input class="table-spent-input" type="number" step="0.01" value="${inst.spent ?? ''}" placeholder="0.00" data-txid="${inst.id}" data-field="spent">
@@ -1646,87 +1373,27 @@
       }
     }
 
-    document.getElementById('txBody').innerHTML = tableHtml || `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No entries recorded. Enter your Net Income and click + on any day to log expenses or received funds.</td></tr>`;
+    document.getElementById('txBody').innerHTML = tableHtml || `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No entries logged. Click + on any day to add expenses or received income.</td></tr>`;
     document.getElementById('txCount').textContent = `${totalCount} logged`;
 
     updateCalculationsLive();
   }
 
-  // --- REACTIVE EVENT LISTENERS ---
-
+  // --- EVENTS ---
   const handleIncomeUpdate = (e) => {
-    const newInc = Math.max(0, +e.target.value || 0);
     const m = currentMonth();
-    m.income = newInc;
-
-    if (newInc <= 0) {
-      m.categories.forEach(c => { c.budget = 0; c.pct = 0; });
-    } else {
-      const lockedSum = m.categories.filter(c => c.locked).reduce((sum, c) => sum + (c.budget || 0), 0);
-      const unlocked = m.categories.filter(c => !c.locked);
-
-      if (lockedSum >= newInc) {
-        const ratio = lockedSum > 0 ? (newInc / lockedSum) : 1;
-        m.categories.forEach(c => {
-          if (c.locked) {
-            c.budget *= ratio;
-            c.pct = (c.budget / newInc) * 100;
-          } else {
-            c.budget = 0;
-            c.pct = 0;
-          }
-        });
-      } else {
-        const remainingForUnlocked = newInc - lockedSum;
-        const oldUnlockedSum = unlocked.reduce((sum, c) => sum + (c.budget || 0), 0);
-
-        m.categories.forEach(c => {
-          if (c.locked) {
-            c.pct = (c.budget / newInc) * 100;
-          } else {
-            if (oldUnlockedSum > 0) {
-              c.budget = remainingForUnlocked * (c.budget / oldUnlockedSum);
-            } else {
-              c.budget = remainingForUnlocked / (unlocked.length || 1);
-            }
-            c.pct = (c.budget / newInc) * 100;
-          }
-        });
-      }
-    }
-
+    m.income = round2(Math.max(0, +e.target.value || 0));
+    syncIncomeAdjustment(m);
     updateCalculationsLive();
     persist();
   };
   document.getElementById('inputIncome').addEventListener('input', handleIncomeUpdate);
   document.getElementById('inputIncome').addEventListener('change', handleIncomeUpdate);
 
-  // Sliders Live Drag
-  document.addEventListener('input', (e) => {
-    if (e.target.dataset.cat) {
-      const m = currentMonth();
-      rebalanceCategory(m, e.target.dataset.cat, +e.target.value, true);
-    }
-  });
-
-  document.addEventListener('change', (e) => {
-    if (e.target.dataset.cat) {
-      persist();
-      render();
-    }
-  });
-
-  // Target amount input
-  document.addEventListener('input', (e) => {
-    if (e.target.classList.contains('cat-amt-input')) {
-      const m = currentMonth();
-      const val = +e.target.value || 0;
-      rebalanceCategory(m, e.target.dataset.id, val, false);
-    }
-  });
-
   document.addEventListener('change', (e) => {
     if (e.target.classList.contains('cat-amt-input')) {
+      const m = currentMonth();
+      rebalanceCategory(m, e.target.dataset.id, round2(e.target.value));
       persist();
       render();
     }
@@ -1734,57 +1401,40 @@
 
   document.getElementById('inputYear').onchange = (e) => {
     currentMonth().year = +e.target.value;
-    persist();
-    render();
+    persist(); render();
   };
-
   document.getElementById('selectMonth').onchange = (e) => {
     currentMonth().month = +e.target.value;
-    persist();
-    render();
+    persist(); render();
   };
-
   document.getElementById('viewToggleBtn').onclick = () => {
     appState.showAllDays = !appState.showAllDays;
-    persist();
-    render();
+    persist(); render();
   };
-
   document.getElementById('currencyBtn').onclick = () => {
-    const val = prompt('Enter currency symbol (e.g. RM, MYR, $, €, £):', appState.currency);
-    if (val !== null && val.trim() !== '') {
+    const val = prompt('Enter currency symbol:', appState.currency);
+    if (val && val.trim()) {
       appState.currency = val.trim();
-      persist();
-      render();
+      persist(); render();
     }
   };
-
   document.getElementById('resetDataBtn').onclick = () => {
-    if (confirm('Reset this budget to a completely blank state? This will clear income and expenses.')) {
+    if (confirm('Clear current budget to an empty state?')) {
       appState.months = [createBlankMonth(now.getFullYear(), now.getMonth())];
       appState.activeMonthIdx = 0;
-      persist();
-      render();
+      persist(); render();
     }
   };
-
   document.getElementById('createCatBtn').onclick = () => {
     const input = document.getElementById('newCatInput');
     const name = input.value.trim();
     if (!name) return;
-    currentMonth().categories.push({
-      id: uid(),
-      name,
-      pct: 0,
-      budget: 0,
-      locked: false
-    });
+    currentMonth().categories.push({ id: uid(), name, pct: 0, budget: 0, locked: false });
     input.value = '';
-    persist();
-    render();
+    persist(); render();
   };
 
-  // Delegated table input edits
+  // Ledger Inputs
   document.addEventListener('input', (e) => {
     if (e.target.dataset.field === 'spent' || e.target.dataset.newentry === 'spent') {
       updateCalculationsLive();
@@ -1793,61 +1443,54 @@
 
   document.addEventListener('change', (e) => {
     const m = currentMonth();
-
     if (e.target.dataset.txid) {
       const tx = (m.expenses || []).find(x => x.id === e.target.dataset.txid);
       if (tx) {
         const field = e.target.dataset.field;
-        tx[field] = field === 'spent' ? +e.target.value : e.target.value;
-        persist();
-        render();
+        tx[field] = field === 'spent' ? round2(e.target.value) : e.target.value;
+        persist(); render();
       }
     }
-
     if (e.target.dataset.newentry) {
       const day = +e.target.dataset.day;
       const row = e.target.closest('tr');
       const cat = row.querySelector('[data-newentry="category"]').value;
       const note = row.querySelector('[data-newentry="note"]').value;
-      const spent = +row.querySelector('[data-newentry="spent"]').value || 0;
+      const spent = round2(row.querySelector('[data-newentry="spent"]').value);
       const typeBtn = row.querySelector('[data-toggletype]');
       const flowType = typeBtn ? typeBtn.dataset.toggletype : 'spent';
 
       if (spent > 0 || note.trim()) {
         m.expenses = m.expenses || [];
         m.expenses.push({ id: uid(), day, category: cat, note, spent, flowType });
-        persist();
-        render();
+        persist(); render();
       }
     }
   });
 
-  // Delegated clicks for Toggle Spent/Received, Lock Toggle and Buttons
+  // Delegated Clicks
   document.addEventListener('click', (e) => {
     const m = currentMonth();
 
-    // Toggle Spent / Received
     const typeBtn = e.target.closest('[data-toggletype]');
     if (typeBtn) {
       const txId = typeBtn.dataset.txid;
       if (txId) {
         const tx = (m.expenses || []).find(x => x.id === txId);
         if (tx) {
-          tx.flowType = (tx.flowType === 'received') ? 'spent' : 'received';
-          persist();
-          render();
+          tx.flowType = tx.flowType === 'received' ? 'spent' : 'received';
+          persist(); render();
         }
       } else {
-        const curType = typeBtn.dataset.toggletype;
-        const newType = curType === 'received' ? 'spent' : 'received';
-        typeBtn.dataset.toggletype = newType;
-        typeBtn.textContent = newType === 'received' ? '+' : '-';
-        typeBtn.classList.toggle('is-received', newType === 'received');
-        typeBtn.classList.toggle('is-spent', newType === 'spent');
+        const next = typeBtn.dataset.toggletype === 'received' ? 'spent' : 'received';
+        typeBtn.dataset.toggletype = next;
+        typeBtn.textContent = next === 'received' ? '+' : '-';
+        typeBtn.classList.toggle('is-received', next === 'received');
+        typeBtn.classList.toggle('is-spent', next === 'spent');
         const box = typeBtn.closest('.table-spent-box');
         if (box) {
-          box.classList.toggle('is-received', newType === 'received');
-          box.classList.toggle('is-spent', newType === 'spent');
+          box.classList.toggle('is-received', next === 'received');
+          box.classList.toggle('is-spent', next === 'spent');
         }
         updateCalculationsLive();
       }
@@ -1856,12 +1499,10 @@
 
     const lockBtn = e.target.closest('[data-togglelock]');
     if (lockBtn) {
-      const catId = lockBtn.dataset.togglelock;
-      const cat = m.categories.find(c => c.id === catId);
+      const cat = m.categories.find(c => c.id === lockBtn.dataset.togglelock);
       if (cat) {
         cat.locked = !cat.locked;
-        persist();
-        render();
+        persist(); render();
       }
       return;
     }
@@ -1869,49 +1510,38 @@
     const tabBtn = e.target.closest('[data-switch]');
     if (tabBtn) {
       appState.activeMonthIdx = +tabBtn.dataset.switch;
-      persist();
-      render();
+      persist(); render();
       return;
     }
 
     if (e.target.dataset.addinst) {
       const day = +e.target.dataset.addinst;
-      const defaultCat = getDefaultExpenseCat(m);
       m.expenses = m.expenses || [];
       m.expenses.push({
-        id: uid(),
-        day,
-        category: defaultCat,
-        note: '',
-        spent: 0,
-        flowType: 'spent'
+        id: uid(), day, category: getDefaultExpenseCat(m),
+        note: '', spent: 0, flowType: 'spent'
       });
-      persist();
-      render();
+      persist(); render();
     }
 
     if (e.target.dataset.deltx) {
       m.expenses = (m.expenses || []).filter(tx => tx.id !== e.target.dataset.deltx);
-      persist();
-      render();
+      persist(); render();
     }
 
     if (e.target.dataset.delcat) {
       m.categories = m.categories.filter(c => c.id !== e.target.dataset.delcat);
-      persist();
-      render();
+      persist(); render();
     }
   });
 
   document.getElementById('delMonthBtn').onclick = () => {
     if (appState.months.length <= 1) return;
     const cur = currentMonth();
-    const monthTitle = `${MONTH_NAMES[cur.month]} ${cur.year}`;
-    if (confirm(`Are you sure you want to delete "${monthTitle}"? This cannot be undone.`)) {
+    if (confirm(`Delete "${MONTH_NAMES[cur.month]} ${cur.year}"?`)) {
       appState.months.splice(appState.activeMonthIdx, 1);
       appState.activeMonthIdx = Math.max(0, appState.activeMonthIdx - 1);
-      persist();
-      render();
+      persist(); render();
     }
   };
 
@@ -1921,8 +1551,7 @@
     if (mo > 11) { mo = 0; y++; }
     appState.months.push(createBlankMonth(y, mo));
     appState.activeMonthIdx = appState.months.length - 1;
-    persist();
-    render();
+    persist(); render();
   };
 
   document.getElementById('dupMonthBtn').onclick = () => {
@@ -1933,58 +1562,36 @@
     copy.expenses = [];
     appState.months.push(copy);
     appState.activeMonthIdx = appState.months.length - 1;
-    persist();
-    render();
+    persist(); render();
   };
 
-  // Cloud Sync setup modal
+  // Cloud Sync setup
   document.getElementById('cloudSyncBtn').onclick = () => {
     const curGist = SYNC_CONFIG.gistId;
-    const curTok = SYNC_CONFIG.token ? '••••••••' + SYNC_CONFIG.token.slice(-4) : '';
-    
-    const choice = prompt(
-      `Sync with GitHub Gist:\n\nCurrent Gist ID: ${curGist || 'None'}\nCurrent Token: ${curTok || 'None'}\n\nType "set" to configure, "clear" to disconnect, or "sync" to pull now:`, 
-      curGist ? 'sync' : 'set'
-    );
-
+    const choice = prompt(`GitHub Gist Sync:\n\nCurrent Gist ID: ${curGist || 'None'}\n\nType "set", "sync", or "clear":`, curGist ? 'sync' : 'set');
     if (choice === 'set') {
-      const gId = prompt('Paste your Secret Gist ID:', curGist);
+      const gId = prompt('Paste Secret Gist ID:', curGist);
       if (!gId) return;
-      const tok = prompt('Paste your GitHub Personal Access Token:');
+      const tok = prompt('Paste Personal Access Token:');
       if (!tok) return;
-      
       SYNC_CONFIG.set(gId, tok);
-      alert('Credentials saved! Pulling data...');
       pullFromCloud().then(data => {
-        if (data) {
-          appState = data;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-        } else {
-          persist();
-        }
+        if (data) { appState = data; persist(); }
         render();
       });
     } else if (choice === 'clear') {
       SYNC_CONFIG.clear();
       updateSyncUI('', 'Local Only');
-      alert('Disconnected cloud sync on this device.');
     } else if (choice === 'sync') {
       pullFromCloud().then(data => {
-        if (data) {
-          appState = data;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-          render();
-          alert('Successfully updated from cloud!');
-        } else {
-          alert('Could not pull cloud data. Check credentials.');
-        }
+        if (data) { appState = data; persist(); render(); alert('Synced!'); }
+        else alert('Failed to sync. Check credentials.');
       });
     }
   };
 
-  // --- INITIAL BOOTSTRAP ---
+  // Bootstrap
   showLockScreen();
-
   if (SYNC_CONFIG.gistId && SYNC_CONFIG.token) {
     pullFromCloud().then(data => {
       if (data) {
